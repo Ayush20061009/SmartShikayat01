@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import ajax_views
 
 urlpatterns = [
     path('my-complaints/', views.complaint_list, name='complaint_list'),
@@ -12,4 +13,5 @@ urlpatterns = [
     path('withdraw/', views.withdraw_earnings, name='withdraw_earnings'),
     path('officer/register-vehicle/', views.register_vehicle_owner, name='register_vehicle_owner'),
     path('officer/update/<uuid:tracking_id>/', views.complaint_update_status, name='complaint_update_status'),
+    path('ajax/extract-plate/', ajax_views.extract_plate_ajax, name='extract_plate_ajax'),
 ]

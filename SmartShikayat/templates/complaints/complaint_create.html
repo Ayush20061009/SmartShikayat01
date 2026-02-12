@@ -71,6 +71,8 @@
     document.addEventListener("DOMContentLoaded", function () {
         const categoryField = document.getElementById("{{ form.category.id_for_label }}");
         const vehicleContainer = document.getElementById("vehicle-number-container");
+        const imageInput = document.getElementById("{{ form.image.id_for_label }}");
+        const vehicleNumberInput = document.getElementById("{{ form.manual_vehicle_number.id_for_label }}");
 
         function toggleVehicleNumber() {
             if (categoryField.value === 'parking') {
@@ -85,6 +87,80 @@
 
         // Listen for changes
         categoryField.addEventListener("change", toggleVehicleNumber);
+
+        // Auto-extract license plate when image is uploaded for parking
+        imageInput.addEventListener("change", function() {
+            if (categoryField.value === 'parking' && this.files && this.files[0]) {
+                extractLicensePlate(this.files[0]);
+            }
+        });
+
+        function extractLicensePlate(imageFile) {
+            // Show loading indicator
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'alert alert-info mt-2';
+            loadingMsg.id = 'plate-loading';
+            loadingMsg.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Detecting license plate...';
+            vehicleContainer.appendChild(loadingMsg);
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('image', imageFile);
+
+            // Get CSRF token
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            // Send AJAX request
+            fetch('{% url "extract_plate_ajax" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading indicator
+                const loading = document.getElementById('plate-loading');
+                if (loading) loading.remove();
+
+                if (data.success && data.plate_number) {
+                    // Auto-fill the vehicle number field
+                    vehicleNumberInput.value = data.plate_number;
+                    
+                    // Show success message
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'alert alert-success mt-2';
+                    successMsg.innerHTML = `✅ License plate detected: <strong>${data.plate_number}</strong> (Confidence: ${Math.round(data.confidence)}%)`;
+                    vehicleContainer.appendChild(successMsg);
+                    
+                    // Remove success message after 5 seconds
+                    setTimeout(() => successMsg.remove(), 5000);
+                } else {
+                    // Show warning message
+                    const warningMsg = document.createElement('div');
+                    warningMsg.className = 'alert alert-warning mt-2';
+                    warningMsg.innerHTML = '⚠️ Could not detect license plate. Please enter manually.';
+                    vehicleContainer.appendChild(warningMsg);
+                    
+                    // Remove warning message after 5 seconds
+                    setTimeout(() => warningMsg.remove(), 5000);
+                }
+            })
+            .catch(error => {
+                // Remove loading indicator
+                const loading = document.getElementById('plate-loading');
+                if (loading) loading.remove();
+                
+                console.error('Error:', error);
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'alert alert-danger mt-2';
+                errorMsg.innerHTML = '❌ Error detecting license plate. Please enter manually.';
+                vehicleContainer.appendChild(errorMsg);
+                
+                setTimeout(() => errorMsg.remove(), 5000);
+            });
+        }
     });
 </script>
 {% endblock %}

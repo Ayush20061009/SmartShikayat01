@@ -150,4 +150,4 @@ EMAIL_HOST_PASSWORD = 'xlmr tylu nnsf voio' # <--- PUT YOUR GOOGLE APP PASSWORD 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # AI Configuration
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"

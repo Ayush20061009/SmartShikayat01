@@ -27,111 +27,176 @@ def complaint_create(request):
             complaint.user = request.user
             
             # --- AI Check & Traffic Violation Logic ---
-            if complaint.category == 'parking' and complaint.image:
+            # AI validation for complaints with images
+            if complaint.image:
                 try:
-                    from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai
+                    from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai, check_road_damage_ai, check_garbage_issue_ai
+                    from .models import AIValidationMetrics
                     
-                    # 0. Check Manual vs AI Plate Match (Feature Request)
-                    manual_plate = form.cleaned_data.get('manual_vehicle_number')
+                    # Get user language preference (default to English)
+                    user_lang = getattr(request.user, 'preferred_language', 'en') or 'en'
                     
-                    # 1. AI Image Detection (AI Generated?)
-                    is_ai, ai_msg = check_image_ai(complaint.image)
+                    # 1. Check if image is AI-generated (applies to all categories)
+                    is_ai, ai_msg, ai_conf, ai_time = check_image_ai(complaint.image, language=user_lang)
                     if is_ai:
-                        form.add_error('image', f"Image rejected: Detected as AI-generated ({ai_msg})")
+                        form.add_error('image', f"❌ Image rejected: Detected as AI-generated ({ai_msg}). Please upload a real photograph.")
                         return render(request, 'complaints/complaint_create.html', {'form': form})
                     
                     complaint.is_ai_checked = True
+                    complaint.ai_language = user_lang
                     
-                    # 2. Check Illegal Parking (AI)
-                    is_illegal, illegal_reason = check_illegal_parking_ai(complaint.image)
-                    if not is_illegal:
-                        # Optional: Reject or Warn. For now, let's reject strict.
-                        # form.add_error('image', f"AI Analysis: Vehicle appears to be parked legally or unclear. ({illegal_reason})")
-                        # return render(request, 'complaints/complaint_create.html', {'form': form})
-                        # Allowing vague "NO" for now as models vary, but logging it.
-                        print(f"AI Warning: Might not be illegal parking: {illegal_reason}")
-
-                    # 3. Extract Plate
-                    ai_plate_number = extract_license_plate(complaint.image)
-                    
-                    final_plate = None
-                    
-                    if manual_plate and ai_plate_number:
-                        # Compare (Strip spaces and case)
-                        norm_manual = manual_plate.replace(" ", "").upper()
-                        norm_ai = ai_plate_number.replace(" ", "").upper()
+                    # 2. Category-specific AI validation
+                    if complaint.category == 'parking':
+                        # Parking-specific validation
+                        manual_plate = form.cleaned_data.get('manual_vehicle_number')
                         
-                        # Basic fuzzy match or exact? Let's do exact containment or 80% match.
-                        # Strict for now as per user request "check number plate is match"
-                        if norm_manual != norm_ai and norm_manual not in norm_ai:
-                             form.add_error('manual_vehicle_number', f"Mismatch: Manual entry '{manual_plate}' does not match AI detected plate '{ai_plate_number}'.")
-                             return render(request, 'complaints/complaint_create.html', {'form': form})
-                        final_plate = norm_manual # Use manual if confirmed by AI
+                        # Check if parking is actually illegal
+                        is_illegal, illegal_reason, parking_conf, parking_time = check_illegal_parking_ai(complaint.image, language=user_lang)
                         
-                    elif ai_plate_number:
-                        final_plate = ai_plate_number
-                    elif manual_plate:
-                         # Fallback: AI failed to detect any plate, but user provided one.
-                         # We TRUST the user's manual input in this case, instead of blocking them.
-                         print("AI Warning: Could not detect plate, using manual input.")
-                         final_plate = manual_plate.replace(" ", "").upper()
-                    else:
-                        form.add_error('image', "Could not detect a license plate. Please provide a clearer image or enter the vehicle number manually.")
-                        return render(request, 'complaints/complaint_create.html', {'form': form})
-
-                    complaint.vehicle_number = final_plate
-                    
-                    try:
-                        owner = User.objects.get(vehicle_number=final_plate)
-                        print(f"✅ FOUND VEHICLE OWNER: {owner.username} (Email: {owner.email})")
+                        # Store AI metrics
+                        complaint.ai_confidence_score = parking_conf
+                        complaint.ai_validation_result = illegal_reason
+                        complaint.ai_validation_passed = is_illegal
                         
-                        # 5. Calculate Fine
-                        fine_amt = 100
-                        if 'city' in complaint.location.lower():
-                            fine_amt = 200
-                        
-                        complaint.fine_amount = fine_amt
-                        
-                        payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
-                        
-                        # Send Email using Utility
-                        email_sent = send_traffic_fine_email(owner, complaint, fine_amt, payment_link, illegal_reason)
-                        
-                        if email_sent:
-                            # --- PRINT LINK FOR DEV TESTING ---
-                            print("\n" + "="*50)
-                            print(f"EMAIL SENT TO: {owner.email}")
-                            print(f"PAYMENT LINK: {payment_link}")
-                            print("="*50 + "\n")
+                        if not is_illegal:
+                            messages.warning(request, f"⚠️ AI Analysis: {illegal_reason}. Please verify this is actually illegal parking before submitting.")
+                            # Allow user to proceed but with warning
                         else:
-                            print(f"Email failed to send to {owner.email}")
+                            messages.success(request, f"✅ AI Verification: {illegal_reason}. Your complaint appears valid.")
+                        
+                        # Extract license plate
+                        ai_plate_number, plate_conf, plate_time = extract_license_plate(complaint.image, language=user_lang)
+                        
+                        final_plate = None
+                        
+                        if manual_plate and ai_plate_number:
+                            # Compare plates
+                            norm_manual = manual_plate.replace(" ", "").upper()
+                            norm_ai = ai_plate_number.replace(" ", "").upper()
+                            
+                            if norm_manual != norm_ai and norm_manual not in norm_ai:
+                                form.add_error('manual_vehicle_number', f"❌ Mismatch: Manual entry '{manual_plate}' does not match AI detected plate '{ai_plate_number}'.")
+                                return render(request, 'complaints/complaint_create.html', {'form': form})
+                            final_plate = norm_manual
+                            
+                        elif ai_plate_number:
+                            final_plate = ai_plate_number
+                        elif manual_plate:
+                            print("AI Warning: Could not detect plate, using manual input.")
+                            final_plate = manual_plate.replace(" ", "").upper()
+                        else:
+                            form.add_error('image', "❌ Could not detect a license plate. Please provide a clearer image or enter the vehicle number manually.")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
 
-                        Notification.objects.create(
-                            user=owner,
-                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+                        complaint.vehicle_number = final_plate
+                        complaint.save()  # Save to get ID for metrics
+                        
+                        # Create AI metrics record
+                        AIValidationMetrics.objects.create(
+                            complaint=complaint,
+                            validation_type='parking',
+                            ai_detected=is_illegal,
+                            ai_confidence=parking_conf,
+                            ai_response=illegal_reason,
+                            processing_time_ms=parking_time
                         )
                         
-                        # --- PRINT LINK FOR DEV TESTING ---
-                        print("\n" + "="*50)
-                        print(f"EMAIL SENT TO: {owner.email}")
-                        print(f"PAYMENT LINK: {payment_link}")
-                        print("="*50 + "\n")
-                        
-                        Notification.objects.create(
-                            user=owner,
-                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
-                        )
+                        # Find vehicle owner and process fine
+                        try:
+                            owner = User.objects.get(vehicle_number=final_plate)
+                            print(f"✅ FOUND VEHICLE OWNER: {owner.username} (Email: {owner.email})")
+                            
+                            # Calculate fine
+                            fine_amt = 100
+                            if 'city' in complaint.location.lower():
+                                fine_amt = 200
+                            
+                            complaint.fine_amount = fine_amt
+                            
+                            payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
+                            
+                            # Send email
+                            email_sent = send_traffic_fine_email(owner, complaint, fine_amt, payment_link, illegal_reason)
+                            
+                            if email_sent:
+                                print("\n" + "="*50)
+                                print(f"EMAIL SENT TO: {owner.email}")
+                                print(f"PAYMENT LINK: {payment_link}")
+                                print("="*50 + "\n")
+                            else:
+                                print(f"Email failed to send to {owner.email}")
 
-                    except User.DoesNotExist:
-                        form.add_error(None, f"Vehicle '{final_plate}' not found in our database. Cannot process fine.")
-                        return render(request, 'complaints/complaint_create.html', {'form': form})
+                            Notification.objects.create(
+                                user=owner,
+                                message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+                            )
+
+                        except User.DoesNotExist:
+                            form.add_error(None, f"❌ Vehicle '{final_plate}' not found in our database. Cannot process fine.")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                    
+                    elif complaint.category == 'road':
+                        # Road damage validation
+                        is_damaged, damage_reason, road_conf, road_time = check_road_damage_ai(complaint.image, language=user_lang)
+                        
+                        # Store AI metrics
+                        complaint.ai_confidence_score = road_conf
+                        complaint.ai_validation_result = damage_reason
+                        complaint.ai_validation_passed = is_damaged
+                        
+                        # STRICT VALIDATION: Reject if no road damage detected
+                        if not is_damaged:
+                            form.add_error('image', f"❌ AI Validation Failed: {damage_reason}. Please upload an image showing clear road damage (potholes, cracks, broken pavement, etc.).")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        # Save and create metrics only if validation passed
+                        complaint.save()  # Save to get ID
+                        
+                        # Create AI metrics record
+                        AIValidationMetrics.objects.create(
+                            complaint=complaint,
+                            validation_type='road',
+                            ai_detected=is_damaged,
+                            ai_confidence=road_conf,
+                            ai_response=damage_reason,
+                            processing_time_ms=road_time
+                        )
+                        
+                        messages.success(request, f"✅ AI Verification: {damage_reason}. Your road damage complaint appears valid.")
+                    
+                    elif complaint.category == 'garbage':
+                        # Garbage issue validation
+                        is_garbage_issue, garbage_reason, garbage_conf, garbage_time = check_garbage_issue_ai(complaint.image, language=user_lang)
+                        
+                        # Store AI metrics
+                        complaint.ai_confidence_score = garbage_conf
+                        complaint.ai_validation_result = garbage_reason
+                        complaint.ai_validation_passed = is_garbage_issue
+                        
+                        # STRICT VALIDATION: Reject if no garbage issue detected
+                        if not is_garbage_issue:
+                            form.add_error('image', f"❌ AI Validation Failed: {garbage_reason}. Please upload an image showing clear garbage accumulation, littering, or waste issues.")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        # Save and create metrics only if validation passed
+                        complaint.save()  # Save to get ID
+                        
+                        # Create AI metrics record
+                        AIValidationMetrics.objects.create(
+                            complaint=complaint,
+                            validation_type='garbage',
+                            ai_detected=is_garbage_issue,
+                            ai_confidence=garbage_conf,
+                            ai_response=garbage_reason,
+                            processing_time_ms=garbage_time
+                        )
+                        
+                        messages.success(request, f"✅ AI Verification: {garbage_reason}. Your garbage complaint appears valid.")
                             
                 except Exception as e:
                     print(f"AI/Email Process Error: {e}")
-                    form.add_error(None, f"System Verification Error: {str(e)}")
+                    form.add_error(None, f"❌ System Verification Error: {str(e)}")
                     return render(request, 'complaints/complaint_create.html', {'form': form})
-            
-            # --- End AI Logic ---
             
             # --- End AI Logic ---
 
