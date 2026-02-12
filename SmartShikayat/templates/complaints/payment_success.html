@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    {% if success %}
+    <div class="alert alert-success">
+        <h4 class="alert-heading">Payment Successful!</h4>
+        <p>Thank you for paying the fine. The violation has been recorded as resolved.</p>
+        <hr>
+        <p class="mb-0">Traffic Authority appreciates your cooperation.</p>
+    </div>
+    {% elif already_paid %}
+    <div class="alert alert-info">
+        <h4 class="alert-heading">Already Paid</h4>
+        <p>This fine has already been paid.</p>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+{% endblock %}

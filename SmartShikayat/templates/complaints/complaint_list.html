@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">My Complaints</h2>
+
+{% if complaints %}
+<div class="row">
+    {% for complaint in complaints %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            {% if complaint.image %}
+            <img src="{{ complaint.image.url }}" class="card-img-top" alt="Complaint Image"
+                style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ complaint.get_category_display }}</h5>
+                <p class="card-text text-truncate">{{ complaint.description }}</p>
+                <p class="card-text"><small class="text-muted">Location: {{ complaint.location }}</small></p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span
+                        class="badge 
+                            {% if complaint.status == 'pending' %}bg-warning{% elif complaint.status == 'progress' %}bg-info{% else %}bg-success{% endif %}">
+                        {{ complaint.get_status_display }}
+                    </span>
+                    <small class="text-muted">{{ complaint.created_at|date:"M d, Y" }}</small>
+                </div>
+                <p class="mt-2 text-muted" style="font-size: 0.8rem;">Tracking ID: {{ complaint.tracking_id }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">You haven't submitted any complaints yet.</div>
+<a href="{% url 'complaint_create' %}" class="btn btn-primary">File a Complaint</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Home | CivicReport{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Report City Issues, <span>Get Quick Action</span></h1>
+        <p>
+            Report broken roads, garbage, water shortages,
+            illegal parking and fire hazards.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="{% url 'report_form' %}" class="btn-orange">Report Issue</a>
+            <a href="{% url 'reports' %}" class="btn-outline">Track Complaints</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

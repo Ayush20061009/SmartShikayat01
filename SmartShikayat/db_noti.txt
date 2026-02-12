@@ -1,0 +1,66 @@
+﻿--------------------------------------------------
+USERS (id, username, role, area, vehicle_number, wallet)
+--------------------------------------------------
+1 | Ayush | citizen | None | None | 0.00
+2 | Ayush2 | citizen | None | None | 0.00
+3 | citizen_test | citizen | None | None | 0.00
+4 | officer_water | officer | None | None | 0.00
+5 | Tirth | citizen | None | None | 0.00
+6 | officer_test | officer | None | None | 0.00
+7 | dev | citizen | None | None | 0.00
+8 | AHK | officer | None | None | 0.00
+9 | officer1 | officer | None | None | 0.00
+10 | citizen1 | citizen | None | None | 0.00
+11 | Sanjay | citizen | None | None | 0.00
+12 | Sanju | officer | None | None | 0.00
+13 | Tirth_Pagi | citizen | None | None | 0.00
+14 | Ayush_sir | officer | None | None | 0.00
+15 | Ayush_bro | officer | None | None | 0.00
+16 | Ayush_sir2 | officer | Surat | None | 0.00
+17 | Chintu | citizen | Surat | None | 0.00
+18 | kadiya_ayush_h | citizen | None | KA53P3307 | 0.00
+19 | rajesh_kumar | citizen | None | GJ01AB1234 | 0.00
+20 | priya_sharma | citizen | None | MH12CD5678 | 0.00
+21 | amit_patel | citizen | None | DL3CDE9012 | 0.00
+22 | sneha_gupta | citizen | None | GJ05XY9876 | 0.00
+23 | Ayush_comp | citizen | None | None | 0.00
+24 | Ayush_officer | officer | Ahemedabad | None | 0.00
+
+--------------------------------------------------------------------------------
+COMPLAINTS (id, category, location, vehicle, fine_amt, paid?, reporter_earning)
+--------------------------------------------------------------------------------
+1 | water | Main St, City Center | None | 0.00 | False | 0.00
+2 | water | Main St, City Center | None | 0.00 | False | 0.00
+3 | garbage | KVCYS | None | 0.00 | False | 0.00
+4 | garbage | ytedyhjk | None | 0.00 | False | 0.00
+5 | garbage | Sarkhej | None | 0.00 | False | 0.00
+6 | water | India | None | 0.00 | False | 0.00
+7 | water | Ghare | None | 0.00 | False | 0.00
+8 | water | Ahemedabad | None | 0.00 | False | 0.00
+9 | water | Surat | None | 0.00 | False | 0.00
+10 | parking | Ahemedabad | None | 0.00 | False | 0.00
+11 | parking | Ahemedabad | None | 0.00 | False | 0.00
+
+--------------------------------------------------
+NOTIFICATIONS (id, user, message, is_read)
+--------------------------------------------------
+1 | dev | Your complaint regarding 'Garbage' has been submitted successfully. Tracking ID: c0593e85-e5bc-4ff9-810c-1e9795141d44 | False
+2 | dev | Your complaint regarding 'Water Issues' has been submitted successfully. Tracking ID: 25bdccd9-e3a2-419e-9d14-6a34821c8b5e | False
+3 | officer_water | New Complaint Alert: A Water Issues issue has been reported at India. Please investigate. | False
+4 | Sanjay | Your complaint regarding 'Water Issues' has been submitted successfully. Tracking ID: c804c281-fa74-44bb-806d-d78c2af1154a | False
+5 | officer_water | New Complaint Alert: A Water Issues issue has been reported at Ghare. Please investigate. | False
+6 | AHK | New Complaint Alert: A Water Issues issue has been reported at Ghare. Please investigate. | False
+7 | Tirth_Pagi | Your complaint regarding 'Water Issues' has been submitted successfully. Tracking ID: e38e9f3b-be77-4283-8537-fc888ec52a1d | False
+8 | officer_water | New Complaint Alert: A Water Issues issue has been reported at Ahemedabad. Please investigate. | False
+9 | AHK | New Complaint Alert: A Water Issues issue has been reported at Ahemedabad. Please investigate. | False
+10 | Sanju | New Complaint Alert: A Water Issues issue has been reported at Ahemedabad. Please investigate. | False
+11 | Chintu | Your complaint regarding 'Water Issues' has been submitted successfully. Tracking ID: d7a676d5-6d61-438b-bf08-d7aa1eee3c3f | False
+12 | officer_water | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+13 | AHK | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+14 | Sanju | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+15 | Ayush_sir | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+16 | Ayush_bro | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+17 | Ayush_sir2 | New Complaint Alert: A Water Issues issue has been reported at Surat. Please investigate. | False
+18 | Ayush_comp | Your complaint regarding 'Illegal Parking' has been submitted successfully. Tracking ID: 4849d779-3777-4c55-a984-b6c07fcfa3cb | False
+19 | Ayush_comp | Your complaint regarding 'Illegal Parking' has been submitted successfully. Tracking ID: cca53f6a-3b57-428f-8ac2-f26cdbace4d7 | False
+20 | Ayush_officer | New Complaint Alert: A Illegal Parking issue has been reported at Ahemedabad. Please investigate. | False

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="report-form-section">
+<div class="form-wrapper">
+
+<h2>Update Status</h2>
+
+<p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <select name="status">
+        <option value="pending">Pending</option>
+        <option value="progress">In Progress</option>
+        <option value="resolved">Resolved</option>
+    </select>
+
+    <button type="submit" class="submit-btn">
+        Update
+    </button>
+</form>
+
+</div>
+</section>
+{% endblock %}

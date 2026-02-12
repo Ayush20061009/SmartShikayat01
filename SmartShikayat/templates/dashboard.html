@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<form method="GET" style="margin-bottom:20px;">
+    <input type="text" name="search" placeholder="Enter Tracking ID">
+    <button type="submit">Search</button>
+</form>
+
+<section class="report-form-section">
+    <div class="form-wrapper">
+
+        <h2 class="form-title">
+            Welcome, {{ request.user.username }}
+        </h2>
+
+        <div class="stats-grid"
+            style="margin-bottom:30px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px;">
+
+            <div class="card">
+                <h3>{{ total }}</h3>
+                <p>Total Complaints</p>
+            </div>
+
+            <div class="card">
+                <h3>{{ pending }}</h3>
+                <p>Pending</p>
+            </div>
+
+            <div class="card">
+                <h3>{{ progress }}</h3>
+                <p>In Progress</p>
+            </div>
+
+            <div class="card">
+                <h3>{{ resolved }}</h3>
+                <p>Resolved</p>
+            </div>
+
+        </div>
+
+
+        <p class="form-subtitle">
+            Here are your submitted complaints.
+        </p>
+
+        <a href="{% url 'report_form' %}" class="submit-btn"
+            style="margin-bottom:30px; display:inline-block; text-align:center;">
+            + New Complaint
+        </a>
+
+
+
+        {% if complaints %}
+        {% for complaint in complaints %}
+        <div class="card" style="margin-bottom:20px;">
+
+            <h3>{{ complaint.get_category_display }}</h3>
+
+            <p><strong>Department:</strong> {{ complaint.department }}</p>
+
+            <p>{{ complaint.description }}</p>
+
+            <p>
+                <strong>Status:</strong>
+
+                {% if complaint.status == 'pending' %}
+                <span class="badge pending">Pending</span>
+                {% elif complaint.status == 'progress' %}
+                <span class="badge progress">In Progress</span>
+                {% elif complaint.status == 'resolved' %}
+                <span class="badge resolved">Resolved</span>
+                {% endif %}
+            </p>
+
+            <p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+
+            <small>{{ complaint.created_at }}</small>
+
+            {% if request.user.role == 'officer' %}
+            <br>
+            <a href="{% url 'update_status' complaint.tracking_id %}">
+                Update Status
+            </a>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="text-align:center;">No complaints submitted yet.</p>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

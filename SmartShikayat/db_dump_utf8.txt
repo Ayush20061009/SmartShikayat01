@@ -1,0 +1,42 @@
+﻿--------------------------------------------------
+USERS (id, username, role, area, vehicle_number, wallet)
+--------------------------------------------------
+1 | Ayush | citizen | None | None | 0.00
+2 | Ayush2 | citizen | None | None | 0.00
+3 | citizen_test | citizen | None | None | 0.00
+4 | officer_water | officer | None | None | 0.00
+5 | Tirth | citizen | None | None | 0.00
+6 | officer_test | officer | None | None | 0.00
+7 | dev | citizen | None | None | 0.00
+8 | AHK | officer | None | None | 0.00
+9 | officer1 | officer | None | None | 0.00
+10 | citizen1 | citizen | None | None | 0.00
+11 | Sanjay | citizen | None | None | 0.00
+12 | Sanju | officer | None | None | 0.00
+13 | Tirth_Pagi | citizen | None | None | 0.00
+14 | Ayush_sir | officer | None | None | 0.00
+15 | Ayush_bro | officer | None | None | 0.00
+16 | Ayush_sir2 | officer | Surat | None | 0.00
+17 | Chintu | citizen | Surat | None | 0.00
+18 | kadiya_ayush_h | citizen | None | KA53P3307 | 0.00
+19 | rajesh_kumar | citizen | None | GJ01AB1234 | 0.00
+20 | priya_sharma | citizen | None | MH12CD5678 | 0.00
+21 | amit_patel | citizen | None | DL3CDE9012 | 0.00
+22 | sneha_gupta | citizen | None | GJ05XY9876 | 0.00
+23 | Ayush_comp | citizen | None | None | 0.00
+24 | Ayush_officer | officer | Ahemedabad | None | 0.00
+
+--------------------------------------------------------------------------------
+COMPLAINTS (id, category, location, vehicle, fine_amt, paid?, reporter_earning)
+--------------------------------------------------------------------------------
+1 | water | Main St, City Center | None | 0.00 | False | 0.00
+2 | water | Main St, City Center | None | 0.00 | False | 0.00
+3 | garbage | KVCYS | None | 0.00 | False | 0.00
+4 | garbage | ytedyhjk | None | 0.00 | False | 0.00
+5 | garbage | Sarkhej | None | 0.00 | False | 0.00
+6 | water | India | None | 0.00 | False | 0.00
+7 | water | Ghare | None | 0.00 | False | 0.00
+8 | water | Ahemedabad | None | 0.00 | False | 0.00
+9 | water | Surat | None | 0.00 | False | 0.00
+10 | parking | Ahemedabad | None | 0.00 | False | 0.00
+11 | parking | Ahemedabad | None | 0.00 | False | 0.00

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="report-form-section">
+    <div class="form-wrapper">
+
+        <h2>Your Notifications</h2>
+
+        {% for n in notifications %}
+        <div class="card" style="margin-bottom:15px;">
+            <p>{{ n.message }}</p>
+            <small>{{ n.created_at }}</small>
+        </div>
+        {% empty %}
+        <p>No notifications.</p>
+        {% endfor %}
+
+    </div>
+</section>
+{% endblock %}

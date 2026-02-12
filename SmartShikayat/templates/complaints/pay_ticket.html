@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Traffic Violation Fine</h4>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="card-title">Illegal Parking Ticket</h5>
+                    <p class="card-text">Vehicle Number: <strong>{{ complaint.vehicle_number }}</strong></p>
+                    <p class="card-text">Location: {{ complaint.location }}</p>
+                    <hr>
+                    <h2 class="text-danger">Amount Due: ₹{{ complaint.fine_amount }}</h2>
+                    <p class="text-muted small">Reference: {{ complaint.tracking_id }}</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-lg w-100">Pay Fine Now</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

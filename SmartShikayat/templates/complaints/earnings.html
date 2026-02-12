@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body text-center">
+                    <h3>Your Total Earnings</h3>
+                    <p class="card-text display-4 text-success">₹ {{ wallet_balance }}</p>
+                    <p>From Reporting Illegal Parking</p>
+                    {% if wallet_balance > 0 %}
+                    <form action="{% url 'withdraw_earnings' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-wallet2"></i> Withdraw Funds
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="bi bi-wallet2"></i> No Funds to Withdraw
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h4 class="mb-3">Earning History</h4>
+            {% if earning_complaints %}
+            <div class="list-group">
+                {% for complaint in earning_complaints %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">Parking Violation Reported</h5>
+                        <p class="mb-1 text-muted">Tracking ID: {{ complaint.tracking_id|truncatechars:10 }}</p>
+                        <small>Location: {{ complaint.location }}</small>
+                    </div>
+                    <span class="badge bg-success rounded-pill">+ ₹{{ complaint.reporter_earning }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">You haven't earned any rewards yet. Keep reporting illegal parking!</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

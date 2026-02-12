@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Department Dashboard: {{ user.department|title }}</h2>
+        <p class="text-muted">Overview of all complaints assigned to your department.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Category</th>
+                        <th>Location</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td>{{ complaint.tracking_id|truncatechars:10 }}</td>
+                        <td>{{ complaint.get_category_display }}</td>
+                        <td>{{ complaint.location }}</td>
+                        <td>{{ complaint.description|truncatewords:10 }}</td>
+                        <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if complaint.status == 'pending' %}bg-warning
+                                {% elif complaint.status == 'progress' %}bg-info
+                                {% else %}bg-success{% endif %}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'complaint_update_status' complaint.tracking_id %}" class="btn btn-sm btn-primary">Update</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No complaints found for this department.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

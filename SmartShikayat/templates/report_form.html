@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Report Issue | CivicReport{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="report-form-section">
+    <div class="form-wrapper">
+        <h2 class="form-title">Submit Complaint</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- CATEGORY -->
+            <label class="form-label">Category *</label>
+            <select name="category" required>
+                <option value="">Select Category</option>
+                <option value="Road Damage">Road Damage</option>
+                <option value="Water Issue">Water Issue</option>
+                <option value="Garbage">Garbage</option>
+                <option value="Illegal Parking">Illegal Parking</option>
+                <option value="Fire Hazard">Fire Hazard</option>
+            </select>
+
+            <!-- IMAGE -->
+            <label class="form-label">Upload Image *</label>
+            <input type="file" name="image" required>
+
+            <!-- LOCATION -->
+            <label class="form-label">Location *</label>
+            <input type="text" name="location" required>
+
+            <!-- DESCRIPTION -->
+            <label class="form-label">Description *</label>
+            <textarea name="description" required></textarea>
+
+            <!-- NAME + PHONE -->
+            <div class="two-col">
+                <input type="text" name="name" placeholder="Your Name">
+                <input type="text" name="phone" placeholder="Phone Number">
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Submit Complaint
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}

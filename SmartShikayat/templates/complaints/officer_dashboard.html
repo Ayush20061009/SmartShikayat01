@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Officer Dashboard - {{ user.get_department_display }} {% if user.area %}({{ user.area }}){% endif %}</h2>
+    <a href="{% url 'register_vehicle_owner' %}" class="btn btn-primary">
+        <i class="bi bi-car-front-fill"></i> Register Vehicle Owner
+    </a>
+</div>
+
+{% if complaints %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Tracking ID</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr>
+                <td>{{ complaint.tracking_id|truncatechars:10 }}</td>
+                <td>{{ complaint.get_category_display }}</td>
+                <td>{{ complaint.location }}</td>
+                <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                <td>
+                    <span
+                        class="badge 
+                            {% if complaint.status == 'pending' %}bg-warning{% elif complaint.status == 'progress' %}bg-info{% else %}bg-success{% endif %}">
+                        {{ complaint.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if complaint.category == 'parking' and not complaint.fine_paid %}
+                    <span class="badge bg-secondary">Waiting for Payment</span>
+                    {% else %}
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#updateModal{{ complaint.id }}">
+                        Update
+                    </button>
+                    {% endif %}
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="updateModal{{ complaint.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Update Status</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <form action="{% url 'complaint_update_status' complaint.tracking_id %}" method="post">
+                                    <div class="modal-body">
+                                        {% csrf_token %}
+                                        <p><strong>Description:</strong> {{ complaint.description }}</p>
+                                        {% if complaint.image %}
+                                        <img src="{{ complaint.image.url }}" class="img-fluid mb-3" alt="Evidence">
+                                        {% endif %}
+                                        <div class="mb-3">
+                                            <label for="status" class="form-label">New Status</label>
+                                            <select name="status" class="form-select">
+                                                {% if complaint.status == 'pending' %}
+                                                <option value="pending" selected>Pending</option>
+                                                {% else %}
+                                                <option value="pending">Pending</option>
+                                                {% endif %}
+
+                                                {% if complaint.status == 'progress' %}
+                                                <option value="progress" selected>In Progress</option>
+                                                {% else %}
+                                                <option value="progress">In Progress</option>
+                                                {% endif %}
+
+                                                {% if complaint.status == 'resolved' %}
+                                                <option value="resolved" selected>Resolved</option>
+                                                {% else %}
+                                                <option value="resolved">Resolved</option>
+                                                {% endif %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-success">No pending complaints for your department!</div>
+{% endif %}
+{% endblock %}
