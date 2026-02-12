@@ -12,4 +12,5 @@ urlpatterns = [
     path('withdraw/', views.withdraw_earnings, name='withdraw_earnings'),
     path('officer/register-vehicle/', views.register_vehicle_owner, name='register_vehicle_owner'),
     path('officer/update/<uuid:tracking_id>/', views.complaint_update_status, name='complaint_update_status'),
+    path('officer/resend-email/<uuid:tracking_id>/', views.resend_fine_email, name='resend_fine_email'),
 ]

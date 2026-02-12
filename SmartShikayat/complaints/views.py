@@ -3,13 +3,85 @@ from django.contrib.auth.decorators import login_required
 from .models import Complaint
 from .forms import ComplaintForm
 from notifications.models import Notification
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from accounts.forms import VehicleRegistrationForm
+import qrcode
+from io import BytesIO
+from email.mime.image import MIMEImage
 
 User = get_user_model()
+
+def send_fine_email(request, complaint):
+    """
+    Helper function to generate QR code and send fine email to vehicle owner.
+    Returns (success, message).
+    """
+    try:
+        final_plate = complaint.vehicle_number
+        if not final_plate:
+             return False, "No vehicle number associated with this complaint."
+
+        owner = User.objects.get(vehicle_number=final_plate)
+        fine_amt = complaint.fine_amount
+
+        # Generate QR Code
+        payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr.add_data(payment_link)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        qr_image_data = buffer.getvalue()
+        
+        # Email Content
+        subject = f"Traffic Violation Fine - {final_plate}"
+        text_content = f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+        
+        html_content = f'''
+        <html>
+            <body>
+                <h2>Traffic Violation Notice</h2>
+                <p>Dear <strong>{owner.username}</strong>,</p>
+                <p>You have been issued a fine for illegal parking at {complaint.location}.</p>
+                <p><strong>Reason:</strong> {complaint.description}</p>
+                <ul>
+                    <li><strong>Vehicle:</strong> {final_plate}</li>
+                    <li><strong>Fine Amount:</strong> Rs. {fine_amt}</li>
+                </ul>
+                <p><a href="{payment_link}" style="background-color: #d9534f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pay Fine Now</a></p>
+                <br>
+                <img src="cid:qrcode_image" alt="Payment QR Code" width="200" height="200">
+            </body>
+        </html>
+        '''
+        
+        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [owner.email])
+        msg.attach_alternative(html_content, "text/html")
+        
+        image = MIMEImage(qr_image_data)
+        image.add_header('Content-ID', '<qrcode_image>')
+        msg.attach(image)
+        
+        msg.send()
+        
+        # Notify Owner
+        Notification.objects.create(
+            user=owner,
+            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+        )
+        
+        return True, f"Email sent to {owner.email}"
+
+    except User.DoesNotExist:
+        return False, f"Vehicle '{final_plate}' not found in database."
+    except Exception as e:
+        return False, f"Email sending failed: {str(e)}"
 
 @login_required
 def complaint_list(request):
@@ -92,63 +164,15 @@ def complaint_create(request):
                         complaint.fine_amount = fine_amt
                         
                         # 6. Generate QR Code & Send Email
-                        import qrcode
-                        from io import BytesIO
-                        from django.core.mail import EmailMultiAlternatives
-                        from email.mime.image import MIMEImage
-
-                        payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
-                        
-                        qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                        qr.add_data(payment_link)
-                        qr.make(fit=True)
-
-                        img = qr.make_image(fill_color="black", back_color="white")
-                        buffer = BytesIO()
-                        img.save(buffer, format="PNG")
-                        qr_image_data = buffer.getvalue()
-                        
-                        # Email Content
-                        subject = f"Traffic Violation Fine - {final_plate}"
-                        text_content = f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
-                        
-                        html_content = f"""
-                        <html>
-                            <body>
-                                <h2>Traffic Violation Notice</h2>
-                                <p>Dear <strong>{owner.username}</strong>,</p>
-                                <p>You have been issued a fine for illegal parking at {complaint.location}.</p>
-                                <p><strong>Reason:</strong> {illegal_reason}</p>
-                                <ul>
-                                    <li><strong>Vehicle:</strong> {final_plate}</li>
-                                    <li><strong>Fine Amount:</strong> Rs. {fine_amt}</li>
-                                </ul>
-                                <p><a href="{payment_link}" style="background-color: #d9534f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pay Fine Now</a></p>
-                                <br>
-                                <img src="cid:qrcode_image" alt="Payment QR Code" width="200" height="200">
-                            </body>
-                        </html>
-                        """
-                        
-                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [owner.email])
-                        msg.attach_alternative(html_content, "text/html")
-                        
-                        image = MIMEImage(qr_image_data)
-                        image.add_header('Content-ID', '<qrcode_image>')
-                        msg.attach(image)
-                        
-                        msg.send()
-                        
-                        # --- PRINT LINK FOR DEV TESTING ---
-                        print("\n" + "="*50)
-                        print(f"EMAIL SENT TO: {owner.email}")
-                        print(f"PAYMENT LINK: {payment_link}")
-                        print("="*50 + "\n")
-                        
-                        Notification.objects.create(
-                            user=owner,
-                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
-                        )
+                        success, msg = send_fine_email(request, complaint)
+                        if not success:
+                            # If user not found, strict error. If email failed, maybe just warn?
+                            if "Vehicle" in msg and "not found" in msg:
+                                form.add_error(None, msg)
+                                return render(request, 'complaints/complaint_create.html', {'form': form})
+                            else:
+                                print(f"Email Warning: {msg}")
+                                messages.warning(request, f"Complaint created but email failed: {msg}")
 
                     except User.DoesNotExist:
                         form.add_error(None, f"Vehicle '{final_plate}' not found in our database. Cannot process fine.")
@@ -341,3 +365,25 @@ def withdraw_earnings(request):
              messages.error(request, "Insufficient balance to withdraw.")
              
     return redirect('user_earnings')
+@login_required
+def resend_fine_email(request, tracking_id):
+    """
+    Manually resend the fine email to the vehicle owner.
+    """
+    if request.user.role != 'officer':
+        return redirect('complaint_list')
+        
+    complaint = get_object_or_404(Complaint, tracking_id=tracking_id)
+    
+    if complaint.category != 'parking' or not complaint.vehicle_number:
+         messages.error(request, "This complaint is not eligible for a fine email.")
+         return redirect('officer_dashboard')
+
+    success, msg = send_fine_email(request, complaint)
+    
+    if success:
+        messages.success(request, msg)
+    else:
+        messages.error(request, msg)
+        
+    return redirect('officer_dashboard')
