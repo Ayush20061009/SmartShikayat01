@@ -1,0 +1,31 @@
+2026-02-12 20:22:37,707 - Complaint Create POST received
+2026-02-12 20:22:37,710 - Form is Valid. Processing...
+2026-02-12 20:31:49,718 - Complaint Create POST received
+2026-02-12 20:31:49,722 - Form is Valid. Processing...
+2026-02-12 20:31:49,722 - Complaint Category: 'parking', Image Details: 
+2026-02-12 20:36:23,342 - Complaint Create POST received
+2026-02-12 20:36:23,521 - Form is Valid. Processing...
+2026-02-12 20:36:23,521 - Complaint Category: 'parking', Image Details: WhatsApp Image 2026-02-10 at 21.36.21.jpeg
+2026-02-12 20:36:23,521 - Starting AI Logic...
+2026-02-12 20:36:23,522 - Manual Plate Input: MH03BW1690
+2026-02-12 20:36:25,509 - AI Generated Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 20:36:27,122 - Illegal Parking Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 20:36:27,122 - AI: Might not be illegal parking: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions
+2026-02-12 20:36:28,773 - Extracted Plate: None
+2026-02-12 20:36:28,774 - AI Could not detect plate, using manual input.
+2026-02-12 20:36:28,774 - Final Plate for Fine: MH03BW1690
+2026-02-12 20:36:28,775 - Owner Found: AK (ayushhkadiya@gmail.com)
+2026-02-12 20:36:28,927 - Calling send_fine_email...
+2026-02-12 20:36:34,605 - Email Result: True - Email sent to ayushhkadiya@gmail.com
+2026-02-12 20:37:45,040 - Complaint Create POST received
+2026-02-12 20:37:45,042 - Form is Valid. Processing...
+2026-02-12 20:37:45,042 - Complaint Category: 'parking', Image Details: WhatsApp Image 2026-02-10 at 21.36.21.jpeg
+2026-02-12 20:37:45,042 - Starting AI Logic...
+2026-02-12 20:37:45,042 - Manual Plate Input: TH03MA3333
+2026-02-12 20:37:46,962 - AI Generated Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 20:37:48,914 - Illegal Parking Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 20:37:48,914 - AI: Might not be illegal parking: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions
+2026-02-12 20:37:50,661 - Extracted Plate: None
+2026-02-12 20:37:50,661 - AI Could not detect plate, using manual input.
+2026-02-12 20:37:50,661 - Final Plate for Fine: TH03MA3333
+2026-02-12 20:37:50,664 - Owner Not Found for TH03MA3333

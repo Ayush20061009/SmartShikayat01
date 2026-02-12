@@ -8,9 +8,20 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from accounts.forms import VehicleRegistrationForm
+import logging
+
+# Configure logging to file
+logger = logging.getLogger('complaint_debug')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('complaint_debug.log')
+formatter = logging.Formatter('%(asctime)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 import qrcode
 from io import BytesIO
 from email.mime.image import MIMEImage
+from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai
 
 User = get_user_model()
 
@@ -43,30 +54,91 @@ def send_fine_email(request, complaint):
         subject = f"Traffic Violation Fine - {final_plate}"
         text_content = f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
         
+        from django.utils import timezone
+        email_date = complaint.created_at or timezone.now()
+        
         html_content = f'''
+        <!DOCTYPE html>
         <html>
-            <body>
-                <h2>Traffic Violation Notice</h2>
-                <p>Dear <strong>{owner.username}</strong>,</p>
-                <p>You have been issued a fine for illegal parking at {complaint.location}.</p>
-                <p><strong>Reason:</strong> {complaint.description}</p>
-                <ul>
-                    <li><strong>Vehicle:</strong> {final_plate}</li>
-                    <li><strong>Fine Amount:</strong> Rs. {fine_amt}</li>
-                </ul>
-                <p><a href="{payment_link}" style="background-color: #d9534f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pay Fine Now</a></p>
-                <br>
-                <img src="cid:qrcode_image" alt="Payment QR Code" width="200" height="200">
-            </body>
+        <head>
+            <style>
+                body {{ font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9; }}
+                .header {{ background-color: #d9534f; color: white; padding: 15px; text-align: center; border-radius: 10px 10px 0 0; }}
+                .content {{ padding: 20px; background-color: white; border-radius: 0 0 10px 10px; }}
+                .details {{ background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+                .btn {{ display: inline-block; padding: 12px 24px; background-color: #d9534f; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }}
+                .footer {{ margin-top: 20px; font-size: 12px; text-align: center; color: #777; }}
+                .evidence-img {{ max-width: 100%; border-radius: 5px; margin-top: 10px; border: 1px solid #ddd; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2 style="margin:0;">Traffic Violation Notice</h2>
+                </div>
+                <div class="content">
+                    <p>Dear <strong>{owner.username}</strong>,</p>
+                    <p>This is an official notification regarding a traffic violation involving your vehicle.</p>
+                    
+                    <div class="details">
+                        <table style="width:100%">
+                            <tr><td><strong>Violation:</strong></td><td>Illegal Parking</td></tr>
+                            <tr><td><strong>Vehicle Number:</strong></td><td>{final_plate}</td></tr>
+                            <tr><td><strong>Location:</strong></td><td>{complaint.location}</td></tr>
+                            <tr><td><strong>Fine Amount:</strong></td><td><strong>Rs. {fine_amt}</strong></td></tr>
+                            <tr><td><strong>Date:</strong></td><td>{email_date.strftime('%Y-%m-%d %H:%M')}</td></tr>
+                        </table>
+                    </div>
+
+                    <p><strong>Description:</strong> {complaint.description}</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{payment_link}" class="btn">Pay Fine Now</a>
+                    </div>
+                    
+                    <p style="text-align: center;">Scan to Pay:</p>
+                    <div style="text-align: center;">
+                        <img src="cid:qrcode_image" alt="Payment QR Code" width="150" height="150" style="border: 1px solid #ccc; padding: 5px;">
+                    </div>
+
+                    <p style="text-align: center; font-size: 0.9em; margin-top: 20px;">
+                        <em>Photographic evidence is attached below.</em>
+                    </p>
+                     <div style="text-align: center;">
+                        <img src="cid:evidence_image" alt="Evidence" class="evidence-img">
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>Smart City Traffic Control | Automated System</p>
+                    <p>Please do not reply to this email.</p>
+                </div>
+            </div>
+        </body>
         </html>
         '''
         
         msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [owner.email])
         msg.attach_alternative(html_content, "text/html")
         
+        # Attach QR Code
         image = MIMEImage(qr_image_data)
         image.add_header('Content-ID', '<qrcode_image>')
         msg.attach(image)
+
+        # Attach Evidence Image
+        if complaint.image:
+             try:
+                # Read image data properly depending on storage
+                complaint.image.open()
+                evidence_data = complaint.image.read()
+                evidence_img = MIMEImage(evidence_data)
+                evidence_img.add_header('Content-ID', '<evidence_image>')
+                msg.attach(evidence_img)
+                complaint.image.close() # Good practice
+             except Exception as img_err:
+                 print(f"Error attaching evidence image: {img_err}")
+
         
         msg.send()
         
@@ -91,23 +163,38 @@ def complaint_list(request):
 @login_required
 def complaint_create(request):
     if request.method == 'POST':
+        logger.info("Complaint Create POST received")
         form = ComplaintForm(request.POST, request.FILES)
         if form.is_valid():
+            logger.info("Form is Valid. Processing...")
             # Initial save to get instance but not db commit if we need to check AI/Validation
             complaint = form.save(commit=False)
             complaint.user = request.user
             
+            # Log state before logic branch
+            logger.info(f"Complaint Category: '{complaint.category}', Image Details: {complaint.image}")
+
             # --- AI Check & Traffic Violation Logic ---
-            if complaint.category == 'parking' and complaint.image:
+            if complaint.category == 'parking':
+                if not complaint.image:
+                     logger.warning("Parking complaint submitted without image. Blocking.")
+                     form.add_error('image', "Evidence Image is REQUIRED for Illegal Parking complaints.")
+                     return render(request, 'complaints/complaint_create.html', {'form': form})
+                
                 try:
-                    from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai
+                    logger.info("Starting AI Logic...")
+
                     
                     # 0. Check Manual vs AI Plate Match (Feature Request)
                     manual_plate = form.cleaned_data.get('manual_vehicle_number')
+                    logger.info(f"Manual Plate Input: {manual_plate}")
                     
                     # 1. AI Image Detection (AI Generated?)
                     is_ai, ai_msg = check_image_ai(complaint.image)
+                    logger.info(f"AI Generated Check: {is_ai} ({ai_msg})")
+
                     if is_ai:
+                        logger.warning(f"Image rejected as AI generated: {ai_msg}")
                         form.add_error('image', f"Image rejected: Detected as AI-generated ({ai_msg})")
                         return render(request, 'complaints/complaint_create.html', {'form': form})
                     
@@ -115,46 +202,45 @@ def complaint_create(request):
                     
                     # 2. Check Illegal Parking (AI)
                     is_illegal, illegal_reason = check_illegal_parking_ai(complaint.image)
+                    logger.info(f"Illegal Parking Check: {is_illegal} ({illegal_reason})")
                     if not is_illegal:
-                        # Optional: Reject or Warn. For now, let's reject strict.
-                        # form.add_error('image', f"AI Analysis: Vehicle appears to be parked legally or unclear. ({illegal_reason})")
-                        # return render(request, 'complaints/complaint_create.html', {'form': form})
-                        # Allowing vague "NO" for now as models vary, but logging it.
-                        print(f"AI Warning: Might not be illegal parking: {illegal_reason}")
+                        logger.warning(f"AI: Might not be illegal parking: {illegal_reason}")
 
                     # 3. Extract Plate
                     ai_plate_number = extract_license_plate(complaint.image)
+                    logger.info(f"Extracted Plate: {ai_plate_number}")
                     
                     final_plate = None
                     
                     if manual_plate and ai_plate_number:
-                        # Compare (Strip spaces and case)
                         norm_manual = manual_plate.replace(" ", "").upper()
                         norm_ai = ai_plate_number.replace(" ", "").upper()
                         
-                        # Basic fuzzy match or exact? Let's do exact containment or 80% match.
-                        # Strict for now as per user request "check number plate is match"
                         if norm_manual != norm_ai and norm_manual not in norm_ai:
+                             logger.warning(f"Mismatch - Manual: {norm_manual}, AI: {norm_ai}")
                              form.add_error('manual_vehicle_number', f"Mismatch: Manual entry '{manual_plate}' does not match AI detected plate '{ai_plate_number}'.")
                              return render(request, 'complaints/complaint_create.html', {'form': form})
-                        final_plate = norm_manual # Use manual if confirmed by AI
+                        final_plate = norm_manual
+                        logger.info(f"Plate Matched/Confirmed: {final_plate}")
                         
                     elif ai_plate_number:
                         final_plate = ai_plate_number
+                        logger.info(f"Using AI Plate: {final_plate}")
                     elif manual_plate:
-                         # Fallback: AI failed to detect any plate, but user provided one.
-                         # We TRUST the user's manual input in this case, instead of blocking them.
-                         print("AI Warning: Could not detect plate, using manual input.")
+                         logger.warning("AI Could not detect plate, using manual input.")
                          final_plate = manual_plate.replace(" ", "").upper()
                     else:
+                        logger.error("No plate detected (AI failed + No Manual). Blocking.")
                         form.add_error('image', "Could not detect a license plate. Please provide a clearer image or enter the vehicle number manually.")
                         return render(request, 'complaints/complaint_create.html', {'form': form})
 
+                    logger.info(f"Final Plate for Fine: {final_plate}")
                     complaint.vehicle_number = final_plate
                     
                     # 4. Find Owner in DB
                     try:
                         owner = User.objects.get(vehicle_number=final_plate)
+                        logger.info(f"Owner Found: {owner.username} ({owner.email})")
                         
                         # 5. Calculate Fine
                         fine_amt = 100
@@ -164,17 +250,31 @@ def complaint_create(request):
                         complaint.fine_amount = fine_amt
                         
                         # 6. Generate QR Code & Send Email
+                        complaint.save() # Save to populate created_at for email
+                        logger.info("Calling send_fine_email...")
                         success, msg = send_fine_email(request, complaint)
+                        logger.info(f"Email Result: {success} - {msg}")
                         if not success:
-                            # If user not found, strict error. If email failed, maybe just warn?
                             if "Vehicle" in msg and "not found" in msg:
                                 form.add_error(None, msg)
                                 return render(request, 'complaints/complaint_create.html', {'form': form})
                             else:
-                                print(f"Email Warning: {msg}")
+                                logger.error(f"Email Warning: {msg}")
                                 messages.warning(request, f"Complaint created but email failed: {msg}")
+                        
+                        if success:
+                            # Show Masked Email Notification
+                            try:
+                                email_parts = owner.email.split('@')
+                                if len(email_parts) == 2:
+                                    masked = f"{email_parts[0][:2]}****@{email_parts[1]}"
+                                    messages.success(request, f"Fine notification sent to owner: {masked}")
+                            except:
+                                pass # formatting error
+
 
                     except User.DoesNotExist:
+                        logger.warning(f"Owner Not Found for {final_plate}")
                         form.add_error(None, f"Vehicle '{final_plate}' not found in our database. Cannot process fine.")
                         return render(request, 'complaints/complaint_create.html', {'form': form})
                             
@@ -211,6 +311,9 @@ def complaint_create(request):
                     )
             
             return redirect('complaint_list')
+        else:
+             logger.error(f"Form Validation Failed: {form.errors}")
+             messages.error(request, 'Please correct the errors below.')
     else:
         form = ComplaintForm()
     return render(request, 'complaints/complaint_create.html', {'form': form})
@@ -382,7 +485,19 @@ def resend_fine_email(request, tracking_id):
     success, msg = send_fine_email(request, complaint)
     
     if success:
-        messages.success(request, msg)
+        # Show Masked Email
+        masked_msg = msg
+        try:
+             # msg from send_fine_email might be "Email sent successfully"
+             # helper function for masking would be better, but inline is fast
+             owner = User.objects.get(vehicle_number=complaint.vehicle_number)
+             email_parts = owner.email.split('@')
+             if len(email_parts) == 2:
+                  masked = f"{email_parts[0][:2]}****@{email_parts[1]}"
+                  masked_msg = f"Email re-sent to: {masked}"
+        except:
+             pass
+        messages.success(request, masked_msg)
     else:
         messages.error(request, msg)
         
