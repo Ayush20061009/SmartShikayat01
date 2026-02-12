@@ -38,6 +38,9 @@
                 <td>
                     {% if complaint.category == 'parking' and not complaint.fine_paid %}
                     <span class="badge bg-secondary">Waiting for Payment</span>
+                    <a href="{% url 'resend_fine_email' complaint.tracking_id %}" class="btn btn-sm btn-outline-warning ms-1" title="Resend Fine Email">
+                        Resend Email
+                    </a>
                     {% else %}
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
                         data-bs-target="#updateModal{{ complaint.id }}">
