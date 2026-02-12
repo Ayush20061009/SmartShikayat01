@@ -42,8 +42,9 @@
                         {% endif %}
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.image.id_for_label }}" class="form-label">Evidence Image*</label>
+                    <div class="mb-3" id="image-container">
+                        <label for="{{ form.image.id_for_label }}" class="form-label" id="image-label">Evidence
+                            Image*</label>
                         {{ form.image }}
                         {% if form.image.errors %}
                         <div class="text-danger small">{{ form.image.errors }}</div>
@@ -77,20 +78,36 @@
     document.addEventListener("DOMContentLoaded", function () {
         const categoryField = document.getElementById("{{ form.category.id_for_label }}");
         const vehicleContainer = document.getElementById("vehicle-number-container");
+        const imageContainer = document.getElementById("image-container");
+        const imageLabel = document.getElementById("image-label");
 
-        function toggleVehicleNumber() {
-            if (categoryField.value === 'parking') {
+        function toggleFields() {
+            const category = categoryField.value;
+
+            // Toggle Vehicle Number (Only for Parking)
+            if (category === 'parking') {
                 vehicleContainer.style.display = 'block';
             } else {
                 vehicleContainer.style.display = 'none';
             }
+
+            // Toggle Image Field (Hide for Fire and Water)
+            if (['fire', 'water'].includes(category)) {
+                imageContainer.style.display = 'none';
+                // Remove asterisk if hidden (though container is hidden so label is too)
+                imageLabel.textContent = "Evidence Image";
+            } else {
+                imageContainer.style.display = 'block';
+                // Add asterisk for others
+                imageLabel.textContent = "Evidence Image*";
+            }
         }
 
         // Initial check
-        toggleVehicleNumber();
+        toggleFields();
 
         // Listen for changes
-        categoryField.addEventListener("change", toggleVehicleNumber);
+        categoryField.addEventListener("change", toggleFields);
     });
 </script>
 {% endblock %}

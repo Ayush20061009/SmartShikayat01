@@ -58,6 +58,9 @@ class Complaint(models.Model):
     fine_paid = models.BooleanField(default=False)
     reporter_earning = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_ai_checked = models.BooleanField(default=False)
+    
+    # AI Analysis Fields
+    ai_language = models.CharField(max_length=50, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.department:

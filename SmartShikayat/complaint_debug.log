@@ -1,0 +1,153 @@
+2026-02-12 22:06:57,769 - Complaint Create POST received
+2026-02-12 22:06:58,338 - Form is Valid. Processing...
+2026-02-12 22:06:58,339 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 22:06:58,340 - Starting AI Logic...
+2026-02-12 22:06:58,340 - Manual Plate Input: 
+2026-02-12 22:07:01,152 - AI Generated Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 22:07:03,517 - Illegal Parking Check: False (400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions)
+2026-02-12 22:07:03,518 - AI: Might not be illegal parking: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions
+2026-02-12 22:07:05,893 - Extracted Plate: None
+2026-02-12 22:07:05,894 - No plate detected (AI failed + No Manual). Blocking.
+2026-02-12 22:07:21,923 - Complaint Create POST received
+2026-02-12 22:07:21,929 - Form is Valid. Processing...
+2026-02-12 22:07:21,930 - Complaint Category: 'garbage', Image Details: AK_car.jpeg
+2026-02-12 22:20:41,111 - Complaint Create POST received
+2026-02-12 22:20:41,709 - Form is Valid. Processing...
+2026-02-12 22:20:41,711 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 22:20:41,711 - Starting AI Logic...
+2026-02-12 22:20:41,713 - Manual Plate Input: 
+2026-02-12 22:20:44,282 - AI Generated Check: False (NO.)
+2026-02-12 22:20:46,658 - Illegal Parking Check: False (NO, no context.)
+2026-02-12 22:20:46,658 - AI: Might not be illegal parking: NO, no context.
+2026-02-12 22:20:49,035 - Extracted Plate: RJ14CV0002
+2026-02-12 22:20:49,035 - Using AI Plate: RJ14CV0002
+2026-02-12 22:20:49,036 - Final Plate for Fine: RJ14CV0002
+2026-02-12 22:20:49,043 - Owner Not Found for RJ14CV0002
+2026-02-12 22:24:57,849 - Complaint Create POST received
+2026-02-12 22:24:57,852 - Form is Valid. Processing...
+2026-02-12 22:24:57,853 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 22:24:57,853 - Starting AI Logic...
+2026-02-12 22:24:57,853 - Manual Plate Input: 
+2026-02-12 22:25:00,269 - AI Generated Check: False (NO.)
+2026-02-12 22:25:02,945 - Illegal Parking Check: False (NO, no context.)
+2026-02-12 22:25:02,945 - AI: Might not be illegal parking: NO, no context.
+2026-02-12 22:25:05,140 - Extracted Plate: RJ14CV0002
+2026-02-12 22:25:05,141 - Using AI Plate: RJ14CV0002
+2026-02-12 22:25:05,141 - Final Plate for Fine: RJ14CV0002
+2026-02-12 22:25:05,147 - Owner Found: AAyushk (tirth78744@gmail.com)
+2026-02-12 22:35:29,488 - Complaint Create POST received
+2026-02-12 22:35:29,930 - Form is Valid. Processing...
+2026-02-12 22:35:29,931 - Complaint Category: 'garbage', Image Details: test_1.jpeg
+2026-02-12 22:42:19,029 - Complaint Create POST received
+2026-02-12 22:42:19,273 - Form is Valid. Processing...
+2026-02-12 22:42:19,274 - Complaint Category: 'garbage', Image Details: test_1.jpeg
+2026-02-12 22:42:42,125 - Complaint Create POST received
+2026-02-12 22:42:42,128 - Form is Valid. Processing...
+2026-02-12 22:42:42,129 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 22:42:42,130 - Starting AI Logic...
+2026-02-12 22:42:42,130 - Manual Plate Input: 
+2026-02-12 22:42:45,096 - AI Generated Check: False (NO.)
+2026-02-12 22:42:47,975 - Illegal Parking Check: False (NO, no context.)
+2026-02-12 22:42:47,975 - AI: Might not be illegal parking: NO, no context.
+2026-02-12 22:42:50,672 - Extracted Plate: RJ14CV0002
+2026-02-12 22:42:50,673 - Using AI Plate: RJ14CV0002
+2026-02-12 22:42:50,673 - Final Plate for Fine: RJ14CV0002
+2026-02-12 22:42:50,677 - Owner Not Found for RJ14CV0002
+2026-02-12 22:46:29,955 - Complaint Create POST received
+2026-02-12 22:46:29,959 - Form is Valid. Processing...
+2026-02-12 22:46:29,959 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 22:46:29,961 - Starting AI Logic...
+2026-02-12 22:46:29,961 - Manual Plate Input: 
+2026-02-12 22:46:32,632 - AI Generated Check: False (NO.)
+2026-02-12 22:46:35,126 - Illegal Parking Check: False (NO, no context.)
+2026-02-12 22:46:35,127 - AI: Might not be illegal parking: NO, no context.
+2026-02-12 22:46:37,690 - Extracted Plate: RJ14CV0002
+2026-02-12 22:46:37,690 - Using AI Plate: RJ14CV0002
+2026-02-12 22:46:37,691 - Final Plate for Fine: RJ14CV0002
+2026-02-12 22:46:37,694 - Owner Found: Tirth_new_user (tirth78744@gmail.com)
+2026-02-12 22:46:37,734 - Calling send_fine_email...
+2026-02-12 22:46:42,631 - Email Result: True - Email sent to tirth78744@gmail.com
+2026-02-12 22:53:30,428 - Complaint Create POST received
+2026-02-12 22:53:30,697 - Form is Valid. Processing...
+2026-02-12 22:53:30,697 - Complaint Category: 'garbage', Image Details: test1.jpeg
+2026-02-12 22:53:30,698 - Starting Garbage AI Validation...
+2026-02-12 22:53:33,377 - AI Generated Check: False (NO.)
+2026-02-12 22:53:36,667 - Garbage Validation: False (NO. 
+
+The image shows a license plate on a Kia vehicle and does not depict any garbage-related issues such as trash overflow, overflowing bins, dirty bins, garbage on streets, or waste management problems.)
+2026-02-12 22:53:36,668 - Image doesn't show garbage issues: NO. 
+
+The image shows a license plate on a Kia vehicle and does not depict any garbage-related issues such as trash overflow, overflowing bins, dirty bins, garbage on streets, or waste management problems.
+2026-02-12 22:53:56,732 - Complaint Create POST received
+2026-02-12 22:53:56,735 - Form is Valid. Processing...
+2026-02-12 22:53:56,737 - Complaint Category: 'garbage', Image Details: test2.jpeg
+2026-02-12 22:53:56,737 - Starting Garbage AI Validation...
+2026-02-12 22:53:59,110 - AI Generated Check: False (NO.)
+2026-02-12 22:54:01,553 - Garbage Validation: True (YES. The image shows trash bags piled on the sidewalk next to overflowing dumpsters, indicating trash overflow and waste management problems.)
+2026-02-12 22:54:01,553 - Garbage image validated successfully
+2026-02-12 22:55:30,975 - Complaint Create POST received
+2026-02-12 22:55:30,979 - Form is Valid. Processing...
+2026-02-12 22:55:30,980 - Complaint Category: 'road', Image Details: test2.jpeg
+2026-02-12 22:55:30,981 - Starting Road Damage AI Validation...
+2026-02-12 22:55:33,692 - AI Generated Check: False (NO.)
+2026-02-12 22:55:36,601 - Road Damage Validation: False (NO. The image shows trash bags and dumpsters on a sidewalk, but it does not depict any road damage such as potholes, deep cracks, broken pavement, or bad road conditions. The focus is on the waste collection rather than the road surface)
+2026-02-12 22:55:36,602 - Image doesn't show road damage: NO. The image shows trash bags and dumpsters on a sidewalk, but it does not depict any road damage such as potholes, deep cracks, broken pavement, or bad road conditions. The focus is on the waste collection rather than the road surface
+2026-02-12 22:56:01,737 - Complaint Create POST received
+2026-02-12 22:56:01,740 - Form is Valid. Processing...
+2026-02-12 22:56:01,740 - Complaint Category: 'road', Image Details: test3.jpeg
+2026-02-12 22:56:01,741 - Starting Road Damage AI Validation...
+2026-02-12 22:56:04,039 - AI Generated Check: False (NO.)
+2026-02-12 22:56:06,624 - Road Damage Validation: True (YES
+
+The image clearly shows a large pothole on the road, which is a depression in the road surface, indicating road damage. Additionally, there are deep cracks surrounding the pothole, further indicating that the road is damaged.)
+2026-02-12 22:56:06,624 - Road damage image validated successfully
+2026-02-12 23:01:52,267 - Complaint Create POST received
+2026-02-12 23:01:52,543 - Form is Valid. Processing...
+2026-02-12 23:01:52,544 - Complaint Category: 'fire', Image Details: test1.jpeg
+2026-02-12 23:07:48,022 - Complaint Create POST received
+2026-02-12 23:07:48,026 - Form is Valid. Processing...
+2026-02-12 23:07:48,027 - Complaint Category: 'water', Image Details: 
+2026-02-12 23:10:35,372 - Complaint Create POST received
+2026-02-12 23:10:35,374 - Form is Valid. Processing...
+2026-02-12 23:10:35,375 - Complaint Category: 'water', Image Details: 
+2026-02-12 23:10:46,441 - Complaint Create POST received
+2026-02-12 23:10:46,445 - Form is Valid. Processing...
+2026-02-12 23:10:46,446 - Complaint Category: 'water', Image Details: 
+2026-02-12 23:10:58,442 - Complaint Create POST received
+2026-02-12 23:10:58,444 - Form is Valid. Processing...
+2026-02-12 23:10:58,445 - Complaint Category: 'water', Image Details: 
+2026-02-12 23:17:45,080 - Complaint Create POST received
+2026-02-12 23:17:45,084 - Form is Valid. Processing...
+2026-02-12 23:17:45,085 - Complaint Category: 'fire', Image Details: 
+2026-02-12 23:17:59,954 - Complaint Create POST received
+2026-02-12 23:17:59,956 - Form is Valid. Processing...
+2026-02-12 23:17:59,958 - Complaint Category: 'fire', Image Details: 
+2026-02-12 23:18:18,217 - Complaint Create POST received
+2026-02-12 23:18:18,219 - Form is Valid. Processing...
+2026-02-12 23:18:18,220 - Complaint Category: 'fire', Image Details: 
+2026-02-12 23:18:26,660 - Complaint Create POST received
+2026-02-12 23:18:26,663 - Form is Valid. Processing...
+2026-02-12 23:18:26,663 - Complaint Category: 'fire', Image Details: 
+2026-02-12 23:43:59,925 - Complaint Create POST received
+2026-02-12 23:44:00,168 - Form is Valid. Processing...
+2026-02-12 23:44:00,168 - Complaint Category: 'road', Image Details: test3.jpeg
+2026-02-12 23:44:00,169 - Starting Road Damage AI Validation...
+2026-02-12 23:44:02,253 - AI Generated Check: False (NO.)
+2026-02-12 23:44:04,202 - Road Damage Validation: True (YES
+
+The image clearly shows a large pothole on the road, which is a depression in the road surface. Additionally, there are deep cracks surrounding the pothole and throughout the road, indicating broken pavement and bad road conditions.)
+2026-02-12 23:44:04,203 - Road damage image validated successfully
+2026-02-12 23:44:37,149 - Complaint Create POST received
+2026-02-12 23:44:37,152 - Form is Valid. Processing...
+2026-02-12 23:44:37,152 - Complaint Category: 'parking', Image Details: test1.jpeg
+2026-02-12 23:44:37,152 - Starting AI Logic...
+2026-02-12 23:44:37,153 - Manual Plate Input: 
+2026-02-12 23:44:39,163 - AI Generated Check: False (NO.)
+2026-02-12 23:44:42,238 - Illegal Parking Check: False (NO, no context.)
+2026-02-12 23:44:42,238 - AI: Might not be illegal parking: NO, no context.
+2026-02-12 23:44:44,295 - Extracted Plate: RJ14CV0002
+2026-02-12 23:44:44,296 - Using AI Plate: RJ14CV0002
+2026-02-12 23:44:44,296 - Final Plate for Fine: RJ14CV0002
+2026-02-12 23:44:44,300 - Owner Found: Tirth_new_user (tirth78744@gmail.com)
+2026-02-12 23:44:44,327 - Calling send_fine_email...
+2026-02-12 23:44:49,482 - Email Result: True - Email sent to tirth78744@gmail.com

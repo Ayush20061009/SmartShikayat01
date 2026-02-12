@@ -150,4 +150,12 @@ EMAIL_HOST_PASSWORD = 'pxgzpmsorygresqs' # <--- Google App Password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # AI Configuration
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
+
+# Google Maps Configuration
+# REPLACE WITH YOUR ACTUAL API KEY
+GOOGLE_MAPS_API_KEY = "YOUR_API_KEY_HERE"
+
+# SerpApi Configuration
+# REPLACE WITH YOUR ACTUAL SERPAPI KEY
+SERPAPI_KEY = "YOUR_SERPAPI_KEY_HERE"

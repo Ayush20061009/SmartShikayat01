@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from accounts.forms import VehicleRegistrationForm
+from django.db.models import Count, F, Window
 import logging
 
 # Configure logging to file
@@ -22,7 +23,7 @@ logger.addHandler(handler)
 import qrcode
 from io import BytesIO
 from email.mime.image import MIMEImage
-from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai
+from .utils_ai import check_image_ai, extract_license_plate, check_illegal_parking_ai, check_garbage_issue_ai, check_road_damage_ai
 
 User = get_user_model()
 
@@ -284,7 +285,76 @@ def complaint_create(request):
             
             # --- End AI Logic ---
             
-            # --- End AI Logic ---
+            # --- Garbage Validation Logic ---
+            if complaint.category == 'garbage':
+                if complaint.image:
+                    try:
+                        logger.info("Starting Garbage AI Validation...")
+                        
+                        # Check if image is AI-generated
+                        is_ai, ai_msg = check_image_ai(complaint.image)
+                        logger.info(f"AI Generated Check: {is_ai} ({ai_msg})")
+                        
+                        if is_ai:
+                            logger.warning(f"Image rejected as AI generated: {ai_msg}")
+                            form.add_error('image', f"Image rejected: Detected as AI-generated ({ai_msg})")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        complaint.is_ai_checked = True
+                        
+                        # Check if image shows garbage issues
+                        is_valid_garbage, garbage_reason = check_garbage_issue_ai(complaint.image)
+                        logger.info(f"Garbage Validation: {is_valid_garbage} ({garbage_reason})")
+                        
+                        if not is_valid_garbage:
+                            logger.warning(f"Image doesn't show garbage issues: {garbage_reason}")
+                            form.add_error('image', f"Image validation failed: The image doesn't appear to show garbage-related issues (trash overflow, dirty bins, etc.). AI says: {garbage_reason}")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        logger.info("Garbage image validated successfully")
+                        
+                    except Exception as e:
+                        logger.error(f"Garbage AI Validation Error: {e}")
+                        # Don't block the complaint if AI validation fails
+                        print(f"Garbage AI Validation Error: {e}")
+            
+            # --- End Garbage Validation ---
+            
+            # --- Road Damage Validation Logic ---
+            if complaint.category == 'road':
+                if complaint.image:
+                    try:
+                        logger.info("Starting Road Damage AI Validation...")
+                        
+                        # Check if image is AI-generated
+                        is_ai, ai_msg = check_image_ai(complaint.image)
+                        logger.info(f"AI Generated Check: {is_ai} ({ai_msg})")
+                        
+                        if is_ai:
+                            logger.warning(f"Image rejected as AI generated: {ai_msg}")
+                            form.add_error('image', f"Image rejected: Detected as AI-generated ({ai_msg})")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        complaint.is_ai_checked = True
+                        
+                        # Check if image shows road damage
+                        is_valid_damage, damage_reason = check_road_damage_ai(complaint.image)
+                        logger.info(f"Road Damage Validation: {is_valid_damage} ({damage_reason})")
+                        
+                        if not is_valid_damage:
+                            logger.warning(f"Image doesn't show road damage: {damage_reason}")
+                            form.add_error('image', f"Image validation failed: The image doesn't appear to show road damage (potholes, cracks, bad road). AI says: {damage_reason}")
+                            return render(request, 'complaints/complaint_create.html', {'form': form})
+                        
+                        logger.info("Road damage image validated successfully")
+                        
+                    except Exception as e:
+                        logger.error(f"Road Damage AI Validation Error: {e}")
+                        # Don't block the complaint if AI validation fails
+                        print(f"Road Damage AI Validation Error: {e}")
+            
+            # --- End Road Damage Validation ---
+
 
             complaint.save() # Finally save to DB
             
@@ -321,7 +391,10 @@ def complaint_create(request):
              messages.error(request, 'Please correct the errors below.')
     else:
         form = ComplaintForm()
-    return render(request, 'complaints/complaint_create.html', {'form': form})
+    return render(request, 'complaints/complaint_create.html', {
+        'form': form, 
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+    })
 
 @login_required
 def officer_dashboard(request):
@@ -332,11 +405,20 @@ def officer_dashboard(request):
     # Note: user.department should match complaint.department (or be mapped)
     # The models use 'department' field on both.
     
-    complaints = Complaint.objects.filter(department=request.user.department).order_by('-created_at')
+    complaints = Complaint.objects.filter(department=request.user.department)
     
     # Location-based restriction
     if request.user.area:
         complaints = complaints.filter(location__icontains=request.user.area)
+        
+    # Prioritize Frequent Locations (Hotspots)
+    # Sort by frequency of location specific to this view's filter, then by date
+    complaints = complaints.annotate(
+        loc_freq=Window(
+            expression=Count('id'),
+            partition_by=[F('location')]
+        )
+    ).order_by('-loc_freq', '-created_at')
         
     return render(request, 'complaints/officer_dashboard.html', {'complaints': complaints})
 
@@ -372,7 +454,15 @@ def department_leaderboard(request):
         return redirect('complaint_list')
         
     # Get complaints for the officer's department
-    complaints = Complaint.objects.filter(department=request.user.department).order_by('-created_at')
+    # Prioritize Frequent Locations (Hotspots)
+    complaints = Complaint.objects.filter(department=request.user.department)
+    
+    complaints = complaints.annotate(
+        loc_freq=Window(
+            expression=Count('id'),
+            partition_by=[F('location')]
+        )
+    ).order_by('-loc_freq', '-created_at')
     
     return render(request, 'complaints/leaderboard.html', {'complaints': complaints})
 
