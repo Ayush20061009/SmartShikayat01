@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from .forms import CitizenSignUpForm, OfficerSignUpForm
 from django.views.generic import TemplateView
+from notifications.utils import send_welcome_email
 
 def home(request):
     return render(request, 'home.html')
@@ -12,6 +13,7 @@ def citizen_signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            send_welcome_email(user)
             return redirect('complaint_list')
     else:
         form = CitizenSignUpForm()
@@ -23,6 +25,7 @@ def officer_signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
+            send_welcome_email(user)
             return redirect('officer_dashboard')
     else:
         form = OfficerSignUpForm()

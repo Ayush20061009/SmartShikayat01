@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Complaint
 from .forms import ComplaintForm
 from notifications.models import Notification
+from notifications.utils import send_traffic_fine_email, send_complaint_confirmation, send_officer_alert, send_status_update_email, send_welcome_email
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -80,9 +81,9 @@ def complaint_create(request):
 
                     complaint.vehicle_number = final_plate
                     
-                    # 4. Find Owner in DB
                     try:
                         owner = User.objects.get(vehicle_number=final_plate)
+                        print(f"✅ FOUND VEHICLE OWNER: {owner.username} (Email: {owner.email})")
                         
                         # 5. Calculate Fine
                         fine_amt = 100
@@ -91,53 +92,24 @@ def complaint_create(request):
                         
                         complaint.fine_amount = fine_amt
                         
-                        # 6. Generate QR Code & Send Email
-                        import qrcode
-                        from io import BytesIO
-                        from django.core.mail import EmailMultiAlternatives
-                        from email.mime.image import MIMEImage
-
                         payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
                         
-                        qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                        qr.add_data(payment_link)
-                        qr.make(fit=True)
+                        # Send Email using Utility
+                        email_sent = send_traffic_fine_email(owner, complaint, fine_amt, payment_link, illegal_reason)
+                        
+                        if email_sent:
+                            # --- PRINT LINK FOR DEV TESTING ---
+                            print("\n" + "="*50)
+                            print(f"EMAIL SENT TO: {owner.email}")
+                            print(f"PAYMENT LINK: {payment_link}")
+                            print("="*50 + "\n")
+                        else:
+                            print(f"Email failed to send to {owner.email}")
 
-                        img = qr.make_image(fill_color="black", back_color="white")
-                        buffer = BytesIO()
-                        img.save(buffer, format="PNG")
-                        qr_image_data = buffer.getvalue()
-                        
-                        # Email Content
-                        subject = f"Traffic Violation Fine - {final_plate}"
-                        text_content = f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
-                        
-                        html_content = f"""
-                        <html>
-                            <body>
-                                <h2>Traffic Violation Notice</h2>
-                                <p>Dear <strong>{owner.username}</strong>,</p>
-                                <p>You have been issued a fine for illegal parking at {complaint.location}.</p>
-                                <p><strong>Reason:</strong> {illegal_reason}</p>
-                                <ul>
-                                    <li><strong>Vehicle:</strong> {final_plate}</li>
-                                    <li><strong>Fine Amount:</strong> Rs. {fine_amt}</li>
-                                </ul>
-                                <p><a href="{payment_link}" style="background-color: #d9534f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Pay Fine Now</a></p>
-                                <br>
-                                <img src="cid:qrcode_image" alt="Payment QR Code" width="200" height="200">
-                            </body>
-                        </html>
-                        """
-                        
-                        msg = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [owner.email])
-                        msg.attach_alternative(html_content, "text/html")
-                        
-                        image = MIMEImage(qr_image_data)
-                        image.add_header('Content-ID', '<qrcode_image>')
-                        msg.attach(image)
-                        
-                        msg.send()
+                        Notification.objects.create(
+                            user=owner,
+                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+                        )
                         
                         # --- PRINT LINK FOR DEV TESTING ---
                         print("\n" + "="*50)
@@ -170,6 +142,9 @@ def complaint_create(request):
                 user=request.user,
                 message=f"Your complaint regarding '{complaint.get_category_display()}' has been submitted successfully. Tracking ID: {complaint.tracking_id}"
             )
+            
+            # Send Confirmation Email
+            send_complaint_confirmation(request.user, complaint)
 
             # (Old logic for parking - removed or integrated above, but let's keep other notifications)
             
@@ -185,6 +160,9 @@ def complaint_create(request):
                         user=officer,
                         message=f"New Complaint Alert: A {complaint.get_category_display()} issue has been reported at {complaint.location}. Please investigate."
                     )
+                    
+                    # Send Officer Alert Email
+                    send_officer_alert(officer, complaint)
             
             return redirect('complaint_list')
     else:
@@ -228,6 +206,9 @@ def complaint_update_status(request, tracking_id):
         if new_status in dict(Complaint.STATUS_CHOICES):
             complaint.status = new_status
             complaint.save()
+            
+            # Send Status Update Email
+            send_status_update_email(complaint.user, complaint)
             
     return redirect('officer_dashboard')
 
@@ -308,6 +289,9 @@ def register_vehicle_owner(request):
                 # Set a default password
                 user.set_password("SmartCity@123")
                 user.save()
+                
+                # Send Welcome Email
+                send_welcome_email(user)
                 
                 # Success message
                 messages.success(request, f"Vehicle Owner {user.username} registered successfully with vehicle {user.vehicle_number}.")

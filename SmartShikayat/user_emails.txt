@@ -1,0 +1,163 @@
+================================================================================
+USER EMAILS IN DATABASE
+================================================================================
+
+Total Users: 26
+
+1. Ayush
+   Email: ayushhkadiya@gmail.com
+   Role: citizen
+   Vehicle: N/A
+   Phone: N/A
+
+2. Ayush2
+   Email: ayushhkadiya@gmail.com
+   Role: citizen
+   Vehicle: N/A
+   Phone: N/A
+
+3. citizen_test
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: N/A
+
+4. officer_water
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+5. Tirth
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 6353337013
+
+6. officer_test
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+7. dev
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 1234567890
+
+8. AHK
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+9. officer1
+   Email: officer1@example.com
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+10. citizen1
+   Email: citizen1@example.com
+   Role: citizen
+   Vehicle: N/A
+   Phone: N/A
+
+11. Sanjay
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 9016793500
+
+12. Sanju
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+13. Tirth_Pagi
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 6353337013
+
+14. Ayush_sir
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+15. Ayush_bro
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+16. Ayush_sir2
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+17. Chintu
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 6353337013
+
+18. kadiya_ayush_h
+   Email: ayushhkadiya@gmail.com
+   Role: citizen
+   Vehicle: KA53P3307
+   Phone: 9876543210
+
+19. rajesh_kumar
+   Email: rajesh@example.com
+   Role: citizen
+   Vehicle: GJ01AB1234
+   Phone: 9876543211
+
+20. priya_sharma
+   Email: priya@example.com
+   Role: citizen
+   Vehicle: MH12CD5678
+   Phone: 9876543212
+
+21. amit_patel
+   Email: amit@example.com
+   Role: citizen
+   Vehicle: DL3CDE9012
+   Phone: 9876543213
+
+22. sneha_gupta
+   Email: sneha@example.com
+   Role: citizen
+   Vehicle: GJ05XY9876
+   Phone: 9876543214
+
+23. Ayush_comp
+   Email: 
+   Role: citizen
+   Vehicle: N/A
+   Phone: 6353337013
+
+24. Ayush_officer
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+25. Ayush_park
+   Email: 
+   Role: officer
+   Vehicle: N/A
+   Phone: N/A
+
+26. AK
+   Email: ayushhkadiya@gmail.com
+   Role: citizen
+   Vehicle: MH03BW1690
+   Phone: 6353337013
+
+================================================================================
