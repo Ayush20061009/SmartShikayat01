@@ -3,7 +3,12 @@ from django.contrib.auth.decorators import login_required
 from .models import Complaint
 from .forms import ComplaintForm
 from notifications.models import Notification
+<<<<<<< HEAD
 from django.core.mail import send_mail, EmailMultiAlternatives
+=======
+from notifications.utils import send_traffic_fine_email, send_complaint_confirmation, send_officer_alert, send_status_update_email, send_welcome_email
+from django.core.mail import send_mail
+>>>>>>> 084f822f1bd438e4dd27b51b7fc74ff6f2a6a8ab
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib import messages
@@ -237,10 +242,13 @@ def complaint_create(request):
                     logger.info(f"Final Plate for Fine: {final_plate}")
                     complaint.vehicle_number = final_plate
                     
-                    # 4. Find Owner in DB
                     try:
                         owner = User.objects.get(vehicle_number=final_plate)
+<<<<<<< HEAD
                         logger.info(f"Owner Found: {owner.username} ({owner.email})")
+=======
+                        print(f"✅ FOUND VEHICLE OWNER: {owner.username} (Email: {owner.email})")
+>>>>>>> 084f822f1bd438e4dd27b51b7fc74ff6f2a6a8ab
                         
                         # 5. Calculate Fine
                         fine_amt = 100
@@ -249,6 +257,7 @@ def complaint_create(request):
                         
                         complaint.fine_amount = fine_amt
                         
+<<<<<<< HEAD
                         # 6. Generate QR Code & Send Email
                         complaint.save() # Save to populate created_at for email
                         logger.info("Calling send_fine_email...")
@@ -272,6 +281,37 @@ def complaint_create(request):
                             except:
                                 pass # formatting error
 
+=======
+                        payment_link = request.build_absolute_uri(f"/complaints/pay_fine/{complaint.tracking_id}/")
+                        
+                        # Send Email using Utility
+                        email_sent = send_traffic_fine_email(owner, complaint, fine_amt, payment_link, illegal_reason)
+                        
+                        if email_sent:
+                            # --- PRINT LINK FOR DEV TESTING ---
+                            print("\n" + "="*50)
+                            print(f"EMAIL SENT TO: {owner.email}")
+                            print(f"PAYMENT LINK: {payment_link}")
+                            print("="*50 + "\n")
+                        else:
+                            print(f"Email failed to send to {owner.email}")
+
+                        Notification.objects.create(
+                            user=owner,
+                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+                        )
+                        
+                        # --- PRINT LINK FOR DEV TESTING ---
+                        print("\n" + "="*50)
+                        print(f"EMAIL SENT TO: {owner.email}")
+                        print(f"PAYMENT LINK: {payment_link}")
+                        print("="*50 + "\n")
+                        
+                        Notification.objects.create(
+                            user=owner,
+                            message=f"You have been fined Rs. {fine_amt} for illegal parking. Pay here: {payment_link}"
+                        )
+>>>>>>> 084f822f1bd438e4dd27b51b7fc74ff6f2a6a8ab
 
                     except User.DoesNotExist:
                         logger.warning(f"Owner Not Found for {final_plate}")
@@ -294,6 +334,9 @@ def complaint_create(request):
                 user=request.user,
                 message=f"Your complaint regarding '{complaint.get_category_display()}' has been submitted successfully. Tracking ID: {complaint.tracking_id}"
             )
+            
+            # Send Confirmation Email
+            send_complaint_confirmation(request.user, complaint)
 
             # (Old logic for parking - removed or integrated above, but let's keep other notifications)
             
@@ -309,6 +352,9 @@ def complaint_create(request):
                         user=officer,
                         message=f"New Complaint Alert: A {complaint.get_category_display()} issue has been reported at {complaint.location}. Please investigate."
                     )
+                    
+                    # Send Officer Alert Email
+                    send_officer_alert(officer, complaint)
             
             return redirect('complaint_list')
         else:
@@ -355,6 +401,9 @@ def complaint_update_status(request, tracking_id):
         if new_status in dict(Complaint.STATUS_CHOICES):
             complaint.status = new_status
             complaint.save()
+            
+            # Send Status Update Email
+            send_status_update_email(complaint.user, complaint)
             
     return redirect('officer_dashboard')
 
@@ -435,6 +484,9 @@ def register_vehicle_owner(request):
                 # Set a default password
                 user.set_password("SmartCity@123")
                 user.save()
+                
+                # Send Welcome Email
+                send_welcome_email(user)
                 
                 # Success message
                 messages.success(request, f"Vehicle Owner {user.username} registered successfully with vehicle {user.vehicle_number}.")

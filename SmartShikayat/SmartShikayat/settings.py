@@ -146,7 +146,11 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 # Replace with your actual email credentials
 EMAIL_HOST_USER = 'did1you2know3that4@gmail.com'  # <--- PUT YOUR GMAIL HERE
+<<<<<<< HEAD
 EMAIL_HOST_PASSWORD = 'pxgzpmsorygresqs' # <--- Google App Password
+=======
+EMAIL_HOST_PASSWORD = 'xlmr tylu nnsf voio' # <--- PUT YOUR GOOGLE APP PASSWORD HERE
+>>>>>>> 084f822f1bd438e4dd27b51b7fc74ff6f2a6a8ab
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # AI Configuration
