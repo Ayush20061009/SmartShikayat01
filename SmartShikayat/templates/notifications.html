@@ -1,19 +1,97 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<section class="report-form-section">
-    <div class="form-wrapper">
+<div class="row justify-content-center py-5">
+    <div class="col-lg-8 col-md-10">
+        
+        <div class="glass-card p-0 animate-fade-up overflow-hidden">
+            
+            <div class="p-4 border-bottom border-secondary-subtle bg-primary-subtle-gradient d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="fw-bold font-monospace mb-1">
+                        <i class="bi bi-bell-fill me-2 text-accent"></i>SYSTEM_LOG
+                    </h4>
+                    <p class="text-secondary small mb-0">Real-time civic updates and alerts.</p>
+                </div>
+                <div class="badge bg-dark border border-secondary text-secondary">
+                    {{ notifications.count }} NEW
+                </div>
+            </div>
 
-        <h2>Your Notifications</h2>
+            <div class="notification-feed">
+                {% for n in notifications %}
+                <div class="p-4 border-bottom border-secondary-subtle transition-hover position-relative">
+                    <div class="d-flex align-items-start gap-3">
+                        
+                        <div class="icon-box-sm rounded-circle bg-surface text-accent flex-shrink-0 mt-1">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
 
-        {% for n in notifications %}
-        <div class="card" style="margin-bottom:15px;">
-            <p>{{ n.message }}</p>
-            <small>{{ n.created_at }}</small>
+                        <div class="flex-grow-1">
+                            <p class="mb-2 text-light">{{ n.message }}</p>
+                            
+                            <div class="d-flex align-items-center small text-secondary font-monospace">
+                                <i class="bi bi-clock me-1"></i>
+                                {{ n.created_at|date:"M d, Y • H:i" }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hover-glow"></div>
+                </div>
+                {% empty %}
+                
+                <div class="text-center py-5">
+                    <div class="mb-3 opacity-25">
+                        <i class="bi bi-check-circle-fill display-1 text-secondary"></i>
+                    </div>
+                    <h5 class="text-muted fw-bold">All Caught Up</h5>
+                    <p class="text-secondary small">No new system notifications.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="p-3 bg-surface text-center border-top border-secondary-subtle">
+                <span class="text-muted small">End of Log</span>
+            </div>
+
         </div>
-        {% empty %}
-        <p>No notifications.</p>
-        {% endfor %}
-
     </div>
-</section>
+</div>
+
+<style>
+    .bg-primary-subtle-gradient {
+        background: linear-gradient(to right, rgba(56, 189, 248, 0.1), transparent);
+    }
+
+    .icon-box-sm {
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .bg-surface {
+        background-color: var(--bg-surface);
+    }
+
+    /* List Item Hover Effect */
+    .transition-hover {
+        transition: background-color 0.3s ease;
+    }
+    .transition-hover:hover {
+        background-color: rgba(255, 255, 255, 0.03);
+    }
+    
+    .hover-glow {
+        position: absolute;
+        left: 0; top: 0; bottom: 0; width: 3px;
+        background: var(--accent-color);
+        opacity: 0;
+        transition: 0.3s;
+    }
+    .transition-hover:hover .hover-glow {
+        opacity: 1;
+    }
+</style>
 {% endblock %}

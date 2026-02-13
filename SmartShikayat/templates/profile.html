@@ -1,17 +1,129 @@
 {% extends 'base.html' %}
-{% block title %}Profile{% endblock %}
+{% load static %}
+
+{% block title %}Profile | Digital Identity{% endblock %}
 
 {% block content %}
-<section class="report-form-section">
-    <div class="form-wrapper">
+<div class="row justify-content-center py-5">
+    <div class="col-lg-6 col-md-8">
+        
+        <div class="glass-card p-0 animate-fade-up overflow-hidden position-relative">
+            
+            <div class="bg-primary-subtle-gradient p-4 border-bottom border-secondary-subtle position-relative">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="badge-pill mb-2">
+                            <span class="badge-dot"></span> ID VERIFIED
+                        </div>
+                        <h4 class="fw-bold font-monospace mb-0">PERSONAL_FILE</h4>
+                    </div>
+                    <span class="badge bg-dark border border-accent text-accent px-3 py-2 rounded-pill text-uppercase">
+                        <i class="bi bi-shield-check me-1"></i> {{ request.user.get_role_display }}
+                    </span>
+                </div>
+            </div>
 
-        <h2 class="form-title">My Profile</h2>
+            <div class="p-4 p-md-5">
+                
+                <div class="text-center mb-5">
+                    <div class="position-relative d-inline-block">
+                        <div class="avatar-circle display-4 fw-bold text-white mb-3">
+                            {{ request.user.username|first|upper }}
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 mb-3 me-1">
+                            <div class="icon-box-xs bg-success text-white rounded-circle border border-dark">
+                                <i class="bi bi-check-lg small"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold text-light mb-1">{{ request.user.username }}</h3>
+                    <p class="text-secondary small font-monospace">System ID: USER-{{ request.user.id|stringformat:"04d" }}</p>
+                </div>
 
-        <p><strong>Username:</strong> {{ request.user.username }}</p>
-        <p><strong>Email:</strong> {{ request.user.email }}</p>
-        <p><strong>Phone:</strong> {{ request.user.phone }}</p>
-        <p><strong>Role:</strong> {{ request.user.get_role_display }}</p>
+                <div class="row g-3">
+                    
+                    <div class="col-12">
+                        <div class="p-3 bg-surface rounded border border-secondary-subtle d-flex align-items-center">
+                            <div class="icon-box-sm text-secondary me-3">
+                                <i class="bi bi-envelope-at-fill"></i>
+                            </div>
+                            <div>
+                                <small class="text-secondary text-uppercase d-block" style="font-size: 0.7rem;">Registered Email</small>
+                                <span class="fw-medium text-light">{{ request.user.email }}</span>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="col-12">
+                        <div class="p-3 bg-surface rounded border border-secondary-subtle d-flex align-items-center">
+                            <div class="icon-box-sm text-secondary me-3">
+                                <i class="bi bi-telephone-fill"></i>
+                            </div>
+                            <div>
+                                <small class="text-secondary text-uppercase d-block" style="font-size: 0.7rem;">Contact Number</small>
+                                <span class="fw-medium text-light">{{ request.user.phone|default:"-- Not Provided --" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if request.user.role == 'officer' and request.user.department %}
+                    <div class="col-12">
+                        <div class="p-3 bg-surface rounded border border-secondary-subtle d-flex align-items-center">
+                            <div class="icon-box-sm text-secondary me-3">
+                                <i class="bi bi-building-fill"></i>
+                            </div>
+                            <div>
+                                <small class="text-secondary text-uppercase d-block" style="font-size: 0.7rem;">Department Unit</small>
+                                <span class="fw-medium text-accent">{{ request.user.get_department_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <div class="mt-5 d-flex gap-3">
+                    <a href="{% url 'password_change' %}" class="btn btn-outline-glow flex-grow-1">
+                        <i class="bi bi-key me-2"></i> Change Password
+                    </a>
+                    </div>
+
+            </div>
+            
+            <div class="bg-surface p-2 border-top border-secondary-subtle text-center">
+                <small class="text-muted font-monospace" style="font-size: 0.7rem;">SECURE CONNECTION ESTABLISHED</small>
+            </div>
+
+        </div>
     </div>
-</section>
+</div>
+
+<style>
+    .bg-primary-subtle-gradient {
+        background: linear-gradient(180deg, rgba(56, 189, 248, 0.1), transparent);
+    }
+    
+    .avatar-circle {
+        width: 100px; height: 100px;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 20px var(--accent-glow);
+        border: 4px solid rgba(255,255,255,0.1);
+    }
+
+    .bg-surface {
+        background-color: var(--bg-surface);
+    }
+
+    .icon-box-sm {
+        width: 30px; height: 30px;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.05);
+        border-radius: 6px;
+    }
+    
+    .text-accent { color: var(--accent-color) !important; }
+    .border-accent { border-color: var(--accent-color) !important; }
+</style>
 {% endblock %}

@@ -1,52 +1,168 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Report Issue | CivicReport{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-{% endblock %}
-
 {% block content %}
-<section class="report-form-section">
-    <div class="form-wrapper">
-        <h2 class="form-title">Submit Complaint</h2>
-
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <!-- CATEGORY -->
-            <label class="form-label">Category *</label>
-            <select name="category" required>
-                <option value="">Select Category</option>
-                <option value="Road Damage">Road Damage</option>
-                <option value="Water Issue">Water Issue</option>
-                <option value="Garbage">Garbage</option>
-                <option value="Illegal Parking">Illegal Parking</option>
-                <option value="Fire Hazard">Fire Hazard</option>
-            </select>
-
-            <!-- IMAGE -->
-            <label class="form-label">Upload Image *</label>
-            <input type="file" name="image" required>
-
-            <!-- LOCATION -->
-            <label class="form-label">Location *</label>
-            <input type="text" name="location" required>
-
-            <!-- DESCRIPTION -->
-            <label class="form-label">Description *</label>
-            <textarea name="description" required></textarea>
-
-            <!-- NAME + PHONE -->
-            <div class="two-col">
-                <input type="text" name="name" placeholder="Your Name">
-                <input type="text" name="phone" placeholder="Phone Number">
+<div class="row justify-content-center py-5">
+    <div class="col-lg-6 col-md-8">
+        
+        <div class="glass-card p-4 p-md-5 animate-fade-up border-top-accent position-relative overflow-hidden">
+            
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-megaphone-fill display-1 text-secondary"></i>
             </div>
 
-            <button type="submit" class="submit-btn">
-                Submit Complaint
-            </button>
-        </form>
+            <div class="mb-5 position-relative z-1">
+                <div class="badge-pill mb-2">
+                    <span class="badge-dot"></span> NEW PROTOCOL
+                </div>
+                <h2 class="fw-bold font-monospace">SUBMIT COMPLAINT</h2>
+                <p class="text-secondary small">File a formal civic incident report.</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" id="reportForm">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label-tech">Incident Category *</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-surface border-end-0 text-secondary">
+                            <i class="bi bi-grid-fill"></i>
+                        </span>
+                        <select name="category" class="form-select border-start-0 ps-0 text-light bg-surface" required>
+                            <option value="" selected disabled>Select Category...</option>
+                            <option value="Road Damage">Road Damage</option>
+                            <option value="Water Issue">Water Issue</option>
+                            <option value="Garbage">Garbage</option>
+                            <option value="Illegal Parking">Illegal Parking</option>
+                            <option value="Fire Hazard">Fire Hazard</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-tech">Evidence Upload *</label>
+                    <div class="position-relative">
+                        <input type="file" name="image" class="form-control bg-surface text-secondary" required id="id_image">
+                        <div class="form-text text-muted small mt-1">
+                            <i class="bi bi-camera me-1"></i> Supports JPG, PNG (Max 5MB)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-tech">Location Coordinates *</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-surface border-end-0 text-secondary">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </span>
+                        <input type="text" name="location" class="form-control border-start-0 ps-0" placeholder="e.g. Main Market, Sector 4" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-tech">Incident Details *</label>
+                    <textarea name="description" class="form-control bg-surface" rows="4" placeholder="Describe the issue in detail..." required></textarea>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label-tech">Reporter Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-surface border-end-0 text-secondary">
+                                <i class="bi bi-person"></i>
+                            </span>
+                            <input type="text" name="name" class="form-control border-start-0 ps-0" placeholder="Optional">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-tech">Contact Phone</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-surface border-end-0 text-secondary">
+                                <i class="bi bi-telephone"></i>
+                            </span>
+                            <input type="text" name="phone" class="form-control border-start-0 ps-0" placeholder="Optional">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-5">
+                    <button type="submit" class="btn btn-primary-glow btn-lg" id="submitBtn">
+                        <i class="bi bi-send-fill me-2"></i> INITIATE REPORT
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
-</section>
+</div>
+
+<style>
+    .border-top-accent {
+        border-top: 4px solid var(--primary-color) !important;
+    }
+    
+    .bg-surface {
+        background-color: var(--bg-surface) !important;
+        border-color: var(--border-color) !important;
+        color: var(--text-primary) !important;
+    }
+
+    .form-label-tech {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* Input Group styling adjustments */
+    .input-group-text.bg-surface {
+        border-right: none;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        transition: 0.3s;
+    }
+    
+    .input-group .form-control, .input-group .form-select {
+        border-left: none;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px var(--accent-glow) !important;
+        outline: none;
+    }
+    
+    /* File input specific styling */
+    input[type="file"]::file-selector-button {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 6px 12px;
+        margin-right: 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+    input[type="file"]::file-selector-button:hover {
+        background-color: var(--primary-color);
+        color: #fff;
+        border-color: var(--primary-color);
+    }
+</style>
+
+<script>
+    document.getElementById('reportForm').addEventListener('submit', function() {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Transmitting Data...';
+    });
+</script>
 {% endblock %}

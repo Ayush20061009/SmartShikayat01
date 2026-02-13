@@ -1,25 +1,108 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Protocol | {{ complaint.tracking_id }}{% endblock %}
+
 {% block content %}
-<section class="report-form-section">
-<div class="form-wrapper">
+<div class="row justify-content-center py-5">
+    <div class="col-lg-5 col-md-7">
+        
+        <div class="glass-card p-4 p-md-5 animate-fade-up border-top-accent position-relative overflow-hidden">
+            
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-sliders display-1 text-secondary"></i>
+            </div>
 
-<h2>Update Status</h2>
+            <div class="mb-4 position-relative z-1">
+                <div class="badge-pill mb-2">
+                    <span class="badge-dot"></span> OFFICER CONTROL
+                </div>
+                <h3 class="fw-bold font-monospace">UPDATE PROTOCOL</h3>
+                <p class="text-secondary small">Modify incident resolution status.</p>
+            </div>
 
-<p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+            <div class="p-3 bg-surface rounded border border-secondary-subtle mb-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-secondary small text-uppercase">Tracking ID</span>
+                    <span class="text-accent font-monospace small">#{{ complaint.tracking_id }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-secondary small text-uppercase">Current Status</span>
+                    <span class="fw-bold text-light text-uppercase small">{{ complaint.get_status_display }}</span>
+                </div>
+                {% if complaint.description %}
+                <div class="mt-2 pt-2 border-top border-secondary-subtle">
+                    <p class="text-secondary small mb-0 fst-italic text-truncate">"{{ complaint.description }}"</p>
+                </div>
+                {% endif %}
+            </div>
 
-<form method="POST">
-    {% csrf_token %}
-    <select name="status">
-        <option value="pending">Pending</option>
-        <option value="progress">In Progress</option>
-        <option value="resolved">Resolved</option>
-    </select>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label class="form-label-tech">Select New Status</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-surface border-end-0 text-secondary">
+                            <i class="bi bi-toggles"></i>
+                        </span>
+                        <select name="status" class="form-select border-start-0 ps-0 text-light bg-surface" required>
+                            <option value="pending" {% if complaint.status == 'pending' %}selected{% endif %}>Pending Investigation</option>
+                            <option value="progress" {% if complaint.status == 'progress' %}selected{% endif %}>In Progress / Active</option>
+                            <option value="resolved" {% if complaint.status == 'resolved' %}selected{% endif %}>Resolved & Closed</option>
+                        </select>
+                    </div>
+                </div>
 
-    <button type="submit" class="submit-btn">
-        Update
-    </button>
-</form>
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn btn-primary-glow btn-lg">
+                        <i class="bi bi-save-fill me-2"></i> CONFIRM UPDATE
+                    </button>
+                    <a href="{% url 'officer_dashboard' %}" class="btn btn-outline-secondary btn-sm text-uppercase fw-bold">
+                        <i class="bi bi-arrow-return-left me-2"></i> Cancel
+                    </a>
+                </div>
+            </form>
 
+        </div>
+    </div>
 </div>
-</section>
+
+<style>
+    .border-top-accent {
+        border-top: 4px solid var(--primary-color) !important;
+    }
+
+    .bg-surface {
+        background-color: var(--bg-surface) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    .form-label-tech {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    /* Input Group Styling */
+    .input-group-text.bg-surface {
+        border-right: none;
+    }
+    
+    .form-select {
+        border-left: none;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .form-select:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 3px var(--accent-glow) !important;
+        outline: none;
+    }
+</style>
 {% endblock %}

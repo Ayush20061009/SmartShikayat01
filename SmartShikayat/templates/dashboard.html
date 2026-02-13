@@ -1,95 +1,153 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard{% endblock %}
+{% load static %}
+
+{% block title %}Dashboard | Smart Shikayat{% endblock %}
 
 {% block content %}
-<form method="GET" style="margin-bottom:20px;">
-    <input type="text" name="search" placeholder="Enter Tracking ID">
-    <button type="submit">Search</button>
-</form>
+<div class="container py-4">
 
-<section class="report-form-section">
-    <div class="form-wrapper">
-
-        <h2 class="form-title">
-            Welcome, {{ request.user.username }}
-        </h2>
-
-        <div class="stats-grid"
-            style="margin-bottom:30px; display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px;">
-
-            <div class="card">
-                <h3>{{ total }}</h3>
-                <p>Total Complaints</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 animate-fade-up">
+        <div>
+            <div class="badge-pill mb-2">
+                <span class="badge-dot"></span> WELCOME BACK
             </div>
-
-            <div class="card">
-                <h3>{{ pending }}</h3>
-                <p>Pending</p>
-            </div>
-
-            <div class="card">
-                <h3>{{ progress }}</h3>
-                <p>In Progress</p>
-            </div>
-
-            <div class="card">
-                <h3>{{ resolved }}</h3>
-                <p>Resolved</p>
-            </div>
-
+            <h2 class="display-6 fw-bold text-uppercase">
+                User: <span class="text-gradient">{{ request.user.username }}</span>
+            </h2>
+            <p class="text-secondary mb-0">Overview of your civic engagement and reports.</p>
         </div>
 
+        <div class="col-md-4 mt-3 mt-md-0">
+            <form method="GET" class="position-relative">
+                <div class="input-group">
+                    <span class="input-group-text bg-surface border-end-0 ps-3">
+                        <i class="bi bi-search text-secondary"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Search Tracking ID..." style="height: 50px;">
+                    <button type="submit" class="btn btn-primary-glow px-4">SEARCH</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        <p class="form-subtitle">
-            Here are your submitted complaints.
-        </p>
+    <div class="row g-3 mb-5 animate-fade-up" style="animation-delay: 100ms;">
+        
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center h-100 border-bottom-primary">
+                <div class="text-secondary small text-uppercase fw-bold mb-2">Total Reports</div>
+                <div class="display-4 fw-bold text-primary">{{ total|default:"0" }}</div>
+            </div>
+        </div>
 
-        <a href="{% url 'report_form' %}" class="submit-btn"
-            style="margin-bottom:30px; display:inline-block; text-align:center;">
-            + New Complaint
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center h-100 border-bottom-warning">
+                <div class="text-secondary small text-uppercase fw-bold mb-2">Pending</div>
+                <div class="display-4 fw-bold text-warning">{{ pending|default:"0" }}</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center h-100 border-bottom-info">
+                <div class="text-secondary small text-uppercase fw-bold mb-2">In Progress</div>
+                <div class="display-4 fw-bold text-info">{{ progress|default:"0" }}</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-3">
+            <div class="glass-card p-3 text-center h-100 border-bottom-success">
+                <div class="text-secondary small text-uppercase fw-bold mb-2">Resolved</div>
+                <div class="display-4 fw-bold text-success">{{ resolved|default:"0" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-up" style="animation-delay: 200ms;">
+        <h4 class="fw-bold h5 mb-0 font-monospace">SUBMITTED COMPLAINTS</h4>
+        
+        <a href="{% url 'complaint_create' %}" class="btn btn-primary-glow">
+            <i class="bi bi-plus-lg me-2"></i> NEW COMPLAINT
         </a>
+    </div>
 
-
-
-        {% if complaints %}
+    {% if complaints %}
+    <div class="row g-4">
         {% for complaint in complaints %}
-        <div class="card" style="margin-bottom:20px;">
+        <div class="col-md-6 col-lg-4">
+            <div class="glass-card h-100 d-flex flex-column animate-fade-up" style="animation-delay: {{ forloop.counter }}00ms;">
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="icon-box-sm bg-surface border border-secondary-subtle rounded text-secondary">
+                        <i class="bi bi-grid-fill"></i>
+                    </span>
+                    
+                    {% if complaint.status == 'pending' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2">Pending</span>
+                    {% elif complaint.status == 'progress' %}
+                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3 py-2">In Progress</span>
+                    {% elif complaint.status == 'resolved' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2">Resolved</span>
+                    {% endif %}
+                </div>
 
-            <h3>{{ complaint.get_category_display }}</h3>
+                <h5 class="fw-bold text-truncate mb-1">{{ complaint.get_category_display }}</h5>
+                <p class="small text-accent mb-3 font-monospace">#{{ complaint.tracking_id }}</p>
 
-            <p><strong>Department:</strong> {{ complaint.department }}</p>
+                <div class="bg-surface rounded p-3 mb-3 border border-secondary-subtle">
+                    <p class="text-secondary small mb-1"><strong>Dept:</strong> {{ complaint.department }}</p>
+                    <p class="text-secondary small mb-0 line-clamp-2">{{ complaint.description }}</p>
+                </div>
 
-            <p>{{ complaint.description }}</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center border-top border-secondary-subtle pt-3">
+                    <small class="text-muted">{{ complaint.created_at|date:"M d, Y" }}</small>
+                    
+                    {% if request.user.role == 'officer' %}
+                    <a href="{% url 'complaint_update_status' complaint.tracking_id %}" class="btn btn-sm btn-outline-glow">
+                        Update Status
+                    </a>
+                    {% endif %}
+                </div>
 
-            <p>
-                <strong>Status:</strong>
-
-                {% if complaint.status == 'pending' %}
-                <span class="badge pending">Pending</span>
-                {% elif complaint.status == 'progress' %}
-                <span class="badge progress">In Progress</span>
-                {% elif complaint.status == 'resolved' %}
-                <span class="badge resolved">Resolved</span>
-                {% endif %}
-            </p>
-
-            <p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
-
-            <small>{{ complaint.created_at }}</small>
-
-            {% if request.user.role == 'officer' %}
-            <br>
-            <a href="{% url 'update_status' complaint.tracking_id %}">
-                Update Status
-            </a>
-            {% endif %}
-
+            </div>
         </div>
         {% endfor %}
-        {% else %}
-        <p style="text-align:center;">No complaints submitted yet.</p>
-        {% endif %}
-
     </div>
-</section>
+
+    {% else %}
+    <div class="glass-card p-5 text-center animate-fade-up">
+        <div class="mb-3 text-muted opacity-25">
+            <i class="bi bi-folder-x display-1"></i>
+        </div>
+        <h4 class="text-muted fw-bold">No Records Found</h4>
+        <p class="text-secondary mb-4">You haven't submitted any complaints yet.</p>
+        <a href="{% url 'complaint_create' %}" class="btn btn-outline-secondary">
+            Start Your First Report
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    /* Stats Borders */
+    .border-bottom-primary { border-bottom: 3px solid var(--primary-color) !important; }
+    .border-bottom-warning { border-bottom: 3px solid #f59e0b !important; }
+    .border-bottom-info { border-bottom: 3px solid #0ea5e9 !important; }
+    .border-bottom-success { border-bottom: 3px solid #10b981 !important; }
+
+    /* Input Styling override */
+    .bg-surface {
+        background-color: var(--bg-surface) !important;
+        border-color: var(--border-color) !important;
+    }
+    .input-group-text {
+        border-color: var(--border-color) !important;
+    }
+    
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
 {% endblock %}

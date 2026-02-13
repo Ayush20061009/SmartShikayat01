@@ -1,37 +1,126 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}Track Complaints | CivicReport{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-{% endblock %}
-
 {% block content %}
-<main class="container">
+<div class="container py-5">
 
-    <section class="page-header">
-        <h1>Recent Complaints</h1>
-        <p>Track the status of complaints submitted by citizens.</p>
-    </section>
+    <div class="text-center mb-5 animate-fade-up">
+        <div class="badge-pill mb-3">
+            <span class="badge-dot"></span> LIVE FEED
+        </div>
+        <h1 class="display-4 fw-bold font-monospace">
+            PUBLIC <span class="text-gradient">INCIDENT LOG</span>
+        </h1>
+        <p class="text-secondary lead mx-auto" style="max-width: 600px;">
+            Real-time tracking of civic issues reported by citizens. 
+            Monitor status updates and community resolution progress.
+        </p>
+    </div>
 
-    <section class="cards">
-
+    <div class="row g-4">
         {% for complaint in complaints %}
-        <div class="card">
-            <div class="card-icon">🚨</div>
-            <div class="card-body">
-                <h3>{{ complaint.get_category_display }}</h3>
-                <p>{{ complaint.description }}</p>
-                <p><strong>Location:</strong> {{ complaint.location }}</p>
-                <p><strong>Status:</strong> {{ complaint.get_status_display }}</p>
-                <p><small>{{ complaint.created_at }}</small></p>
+        <div class="col-md-6 col-lg-4">
+            <div class="glass-card h-100 d-flex flex-column animate-fade-up position-relative overflow-hidden" style="animation-delay: {{ forloop.counter }}00ms;">
+                
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="icon-box-sm bg-surface border border-secondary-subtle text-accent rounded">
+                            {% if complaint.category == 'Road Damage' %}<i class="bi bi-cone-striped"></i>
+                            {% elif complaint.category == 'Water Issue' %}<i class="bi bi-droplet-fill"></i>
+                            {% elif complaint.category == 'Garbage' %}<i class="bi bi-trash-fill"></i>
+                            {% elif complaint.category == 'Fire Hazard' %}<i class="bi bi-fire"></i>
+                            {% else %}<i class="bi bi-exclamation-triangle-fill"></i>
+                            {% endif %}
+                        </div>
+                        <h6 class="fw-bold mb-0 text-uppercase font-monospace small">{{ complaint.get_category_display }}</h6>
+                    </div>
+                    
+                    {% if complaint.status == 'pending' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill">Pending</span>
+                    {% elif complaint.status == 'progress' %}
+                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill">Active</span>
+                    {% elif complaint.status == 'resolved' %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Resolved</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3 flex-grow-1">
+                    <p class="text-light mb-2 line-clamp-3">{{ complaint.description }}</p>
+                    <div class="d-flex align-items-center text-secondary small">
+                        <i class="bi bi-geo-alt-fill me-1 text-accent"></i>
+                        <span class="text-truncate">{{ complaint.location }}</span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-top border-secondary-subtle d-flex justify-content-between align-items-center mt-auto">
+                    <small class="text-muted font-monospace">{{ complaint.created_at|date:"M d, Y" }}</small>
+                    <small class="text-secondary font-monospace">#{{ complaint.tracking_id|truncatechars:8 }}</small>
+                </div>
+                
+                <div class="card-hover-glow"></div>
+
             </div>
         </div>
         {% empty %}
-        <p>No complaints submitted yet.</p>
+        
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 d-inline-block">
+                <div class="mb-3 opacity-25">
+                    <i class="bi bi-check2-circle display-1 text-success"></i>
+                </div>
+                <h4 class="fw-bold text-muted">All Clear</h4>
+                <p class="text-secondary">No active complaints in the public log.</p>
+            </div>
+        </div>
         {% endfor %}
+    </div>
 
+</div>
 
-    </section>
-</main>
+<style>
+    .text-gradient {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .icon-box-sm {
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Badge Colors */
+    .bg-warning-subtle { background: rgba(234, 179, 8, 0.1) !important; color: #fbbf24 !important; border-color: rgba(234, 179, 8, 0.2) !important; }
+    .bg-info-subtle { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border-color: rgba(56, 189, 248, 0.2) !important; }
+    .bg-success-subtle { background: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; border-color: rgba(34, 197, 94, 0.2) !important; }
+
+    /* Card Hover Effect */
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        border-color: var(--primary-color);
+    }
+    
+    .card-hover-glow {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top right, var(--accent-glow), transparent 70%);
+        opacity: 0;
+        transition: 0.4s;
+        z-index: -1;
+    }
+    
+    .glass-card:hover .card-hover-glow {
+        opacity: 0.2;
+    }
+</style>
 {% endblock %}

@@ -1,28 +1,119 @@
 {% extends 'base.html' %}
-{% block title %}Login{% endblock %}
+{% load static %}
+
+{% block title %}Login | Secure Access{% endblock %}
 
 {% block content %}
-<section class="report-form-section">
-    <div class="form-wrapper">
-        <h2 class="form-title">Welcome Back</h2>
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-lg-4 col-md-6">
+        
+        <div class="glass-card p-4 p-md-5 animate-fade-up position-relative overflow-hidden">
+            
+            <div class="position-absolute top-0 start-50 translate-middle" style="width: 200px; height: 200px; background: var(--primary-color); filter: blur(80px); opacity: 0.2; border-radius: 50%;"></div>
 
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.username.label_tag }}
-            {{ form.username }}
+            <div class="text-center mb-5 position-relative z-1">
+                <div class="icon-circle icon-cyan mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-fingerprint fs-2"></i>
+                </div>
+                <h3 class="fw-bold font-monospace">SYSTEM ACCESS</h3>
+                <p class="text-secondary small">Authenticate to continue.</p>
+            </div>
 
-            {{ form.password.label_tag }}
-            {{ form.password }}
+            <form method="POST">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger-glow mb-4 small">
+                    <i class="bi bi-exclamation-octagon-fill me-2"></i> Invalid credentials provided.
+                </div>
+                {% endif %}
 
-            <button type="submit" class="submit-btn">
-                Login
-            </button>
-        </form>
+                <div class="mb-3">
+                    <label class="form-label-tech">Identity (Username)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-surface border-end-0 text-secondary">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
+                        {{ form.username }}
+                    </div>
+                </div>
 
-        <p style="margin-top:20px;text-align:center;">
-            Don't have an account?
-            <a href="{% url 'signup' %}">Sign up</a>
-        </p>
+                <div class="mb-4">
+                    <label class="form-label-tech">Security Key (Password)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-surface border-end-0 text-secondary">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </span>
+                        {{ form.password }}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary-glow btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> INITIATE SESSION
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top border-secondary-subtle">
+                <p class="small text-muted mb-0">No active clearance?</p>
+                <a href="{% url 'signup' %}" class="text-decoration-none fw-bold text-accent">
+                    Register New ID
+                </a>
+            </div>
+        </div>
+
     </div>
-</section>
+</div>
+
+<style>
+    /* Tech Input Labels */
+    .form-label-tech {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+    }
+
+    /* Icon Styling */
+    .icon-cyan {
+        background: rgba(56, 189, 248, 0.1);
+        color: #38bdf8;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    /* Input Group Fixes for Cyber Theme */
+    .input-group-text.bg-surface {
+        background-color: var(--bg-surface);
+        border-color: var(--border-color);
+    }
+    
+    /* Ensure Django rendered inputs match the theme */
+    input[type="text"], input[type="password"] {
+        background-color: var(--bg-surface) !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-primary) !important;
+        padding: 12px;
+        border-radius: 0 8px 8px 0; /* Rounded right side only inside input group */
+    }
+    
+    .input-group input {
+        border-left: 0 !important;
+    }
+
+    input:focus {
+        box-shadow: none !important;
+        border-color: var(--primary-color) !important;
+    }
+    
+    .input-group:focus-within .input-group-text {
+        border-color: var(--primary-color) !important;
+        color: var(--primary-color) !important;
+    }
+</style>
 {% endblock %}

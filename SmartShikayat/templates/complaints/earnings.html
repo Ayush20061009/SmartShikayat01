@@ -1,47 +1,124 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card bg-success text-white mb-4">
-                <div class="card-body text-center">
-                    <h3>Your Total Earnings</h3>
-                    <p class="card-text display-4 text-success">₹ {{ wallet_balance }}</p>
-                    <p>From Reporting Illegal Parking</p>
-                    {% if wallet_balance > 0 %}
-                    <form action="{% url 'withdraw_earnings' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-wallet2"></i> Withdraw Funds
-                        </button>
-                    </form>
-                    {% else %}
-                    <button class="btn btn-secondary btn-lg" disabled>
-                        <i class="bi bi-wallet2"></i> No Funds to Withdraw
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            
+            <div class="glass-card p-5 text-center mb-5 animate-fade-up position-relative overflow-hidden">
+                <div class="card-glow"></div> 
+                
+                <div class="badge-pill mb-4 mx-auto">
+                    <span class="badge-dot"></span> WALLET ACTIVE
+                </div>
+                
+                <h6 class="text-secondary text-uppercase fw-bold mb-0" style="font-family: 'Rajdhani', sans-serif; letter-spacing: 2px;">
+                    Available Balance
+                </h6>
+                
+                <div class="display-1 fw-bold text-gradient my-2">
+                    ₹ {{ wallet_balance }}
+                </div>
+                
+                <p class="text-secondary small mb-4">
+                    Earned from verified Civic Incident Reports
+                </p>
+
+                {% if wallet_balance > 0 %}
+                <form action="{% url 'withdraw_earnings' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary-glow btn-lg px-5 w-100">
+                        <i class="bi bi-wallet2 me-2"></i> WITHDRAW FUNDS
                     </button>
-                    {% endif %}
+                </form>
+                {% else %}
+                <button class="btn btn-outline-secondary btn-lg px-5 w-100" disabled>
+                    <i class="bi bi-lock-fill me-2"></i> INSUFFICIENT FUNDS
+                </button>
+                {% endif %}
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-4 animate-fade-up" style="animation-delay: 100ms;">
+                <h4 class="fw-bold h3 mb-0" style="font-family: 'Rajdhani', sans-serif;">Transaction Log</h4>
+                <div class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">
+                    <i class="bi bi-clock-history me-1"></i> History
                 </div>
             </div>
 
-            <h4 class="mb-3">Earning History</h4>
             {% if earning_complaints %}
-            <div class="list-group">
+            <div class="d-flex flex-column gap-3">
                 {% for complaint in earning_complaints %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-1">Parking Violation Reported</h5>
-                        <p class="mb-1 text-muted">Tracking ID: {{ complaint.tracking_id|truncatechars:10 }}</p>
-                        <small>Location: {{ complaint.location }}</small>
+                <div class="glass-card p-3 d-flex justify-content-between align-items-center animate-fade-up" style="animation-delay: {{ forloop.counter|add:1 }}00ms;">
+                    <div class="d-flex align-items-center gap-3">
+                        
+                        <div class="icon-box-sm bg-success-subtle text-success rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; min-width: 48px;">
+                            <i class="bi bi-arrow-down-left-circle-fill fs-4"></i>
+                        </div>
+                        
+                        <div class="overflow-hidden">
+                            <h6 class="fw-bold mb-1 text-truncate">Parking Violation Reward</h6>
+                            <div class="d-flex align-items-center gap-2 text-secondary small font-monospace">
+                                <span>ID: {{ complaint.tracking_id|truncatechars:10 }}</span>
+                                <span class="text-muted">•</span>
+                                <span class="text-truncate"><i class="bi bi-geo-alt me-1"></i>{{ complaint.location }}</span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="badge bg-success rounded-pill">+ ₹{{ complaint.reporter_earning }}</span>
+
+                    <div class="text-end ps-2">
+                        <span class="h5 fw-bold text-success mb-0 d-block text-nowrap">+ ₹{{ complaint.reporter_earning }}</span>
+                        <span class="badge bg-success-subtle text-success rounded-pill" style="font-size: 0.65rem;">CREDITED</span>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <div class="alert alert-info">You haven't earned any rewards yet. Keep reporting illegal parking!</div>
+            <div class="glass-card p-5 text-center animate-fade-up" style="animation-delay: 200ms;">
+                <div class="mb-3 text-muted opacity-25">
+                    <i class="bi bi-piggy-bank display-1"></i>
+                </div>
+                <h4 class="text-muted fw-bold">No Transactions Yet</h4>
+                <p class="text-secondary mb-4">Your earnings from verified reports will appear here.</p>
+                <a href="{% url 'complaint_create' %}" class="btn btn-outline-glow">
+                    <i class="bi bi-camera me-2"></i>File New Report
+                </a>
+            </div>
             {% endif %}
+
         </div>
     </div>
 </div>
+
+<style>
+    /* Gradient Text for Balance */
+    .text-gradient {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1;
+    }
+    
+    /* Background Glow behind Wallet */
+    .card-glow {
+        position: absolute;
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+        opacity: 0.5;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* Small Icon Box */
+    .bg-success-subtle {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+        color: #10b981 !important;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 576px) {
+        .display-1 { font-size: 3.5rem; }
+    }
+</style>
 {% endblock %}

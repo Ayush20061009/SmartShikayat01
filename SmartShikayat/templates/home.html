@@ -6,86 +6,73 @@
 {% endblock %}
 
 {% block content %}
-<!-- Note: We are overriding the default container in base.html for full width, 
-     but base.html wraps content in a container. 
-     For this page, we might ideally want full width. 
-     However, to fit within the existing structure, we will use a row layout 
-     that looks good inside a container or we might need to close the container div 
-     and reopen it if we could, but that's hacky.
-     
-     Instead, I'll make the content look substantial within the container.
--->
 
-<div class="row align-items-center hero-section" style="margin-left: -12px; margin-right: -12px; border-radius: 20px;">
-    <div class="col-lg-12 text-center hero-content">
-        <h1>Building Smarter Cities Together</h1>
-        <p>Empowering citizens to report issues and track resolutions in real-time.<br>Join the movement for a cleaner, safer environment.</p>
-        
-        <div class="hero-buttons">
-            {% if not user.is_authenticated %}
-                <a class="btn btn-primary" href="{% url 'citizen_signup' %}">Register Now</a>
-                <a class="btn btn-outline-light" href="{% url 'login' %}">Login</a>
-            {% else %}
-                <a class="btn btn-primary" href="{% url 'complaint_create' %}">File a Complaint</a>
-                <a class="btn btn-outline-light" href="{% url 'complaint_list' %}">Track Status</a>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<div class="features-section">
-    <div class="section-title">
-        <h2>Why Smart Shikayat?</h2>
-        <p>A comprehensive solution for modern civic management</p>
-    </div>
-    
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <div class="feature-icon">📸</div>
-                <h3>Easy Reporting</h3>
-                <p>Snap a photo, select the category, and submit. Our smart system handles the rest, including auto-detecting parking violations.</p>
+<div class="hero-wrapper">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 hero-text text-lg-start text-center">
+                <div class="badge-pill mb-3">
+                    <span class="badge-dot"></span> SYSTEM ONLINE v2.0
+                </div>
+                <h1 class="display-3 fw-bold mb-3">
+                    Smart Cities Start With <span class="text-gradient">You</span>.
+                </h1>
+                <p class="lead text-muted mb-4">
+                    The advanced civic resolution platform empowered by AI and Blockchain transparency. Report issues instantly. Get rewarded.
+                </p>
+                
+                <div class="hero-buttons d-flex gap-3 justify-content-lg-start justify-content-center flex-wrap">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'citizen_signup' %}" class="btn btn-primary-glow btn-lg px-4">Citizen Registration</a>
+                        <a href="{% url 'officer_signup' %}" class="btn btn-outline-glow btn-lg px-4">Officer Portal</a>
+                    {% else %}
+                        <a href="{% url 'complaint_create' %}" class="btn btn-primary-glow btn-lg px-4">File Complaint</a>
+                        <a href="{% url 'complaint_list' %}" class="btn btn-outline-glow btn-lg px-4">Dashboard</a>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <div class="feature-icon">📍</div>
-                <h3>Real-time Tracking</h3>
-                <p>Stay updated with every step of the resolution process. Transparency is key to building trust.</p>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <h3>Quick Action</h3>
-                <p>Direct notification to relevant authorities ensures faster response times for fire, water, and road issues.</p>
+            
+            <div class="col-lg-6 mt-5 mt-lg-0 text-center">
+                <div class="glass-card hero-card floating-anim">
+                    <div class="card-glow"></div>
+                    <img src="/media/complaints/logo1.png" alt="Smart Shikayat Logo" class="hero-logo-large mb-4">
+                    <h3 class="mb-2">Smart Shikayat</h3>
+                    <p class="text-secondary small">Secure • Transparent • Fast</p>
+                    <div class="stat-line mt-3"></div>
+                    <div class="stat-line w-75"></div>
+                    <div class="stat-line w-50"></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="stats-section" style="margin-left: -12px; margin-right: -12px; border-radius: 20px;">
-    <div class="row">
-        <div class="col-md-4 stat-item">
-            <div class="stat-number">24/7</div>
-            <p>Support</p>
-        </div>
-        <div class="col-md-4 stat-item">
-            <div class="stat-number">100%</div>
-            <p>Transparency</p>
-        </div>
-        <div class="col-md-4 stat-item">
-            <div class="stat-number">Top</div>
-            <p>Civic Tech</p>
+<div class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="icon-circle icon-blue"><i class="bi bi-camera-video"></i></div>
+                    <h4>AI Vision</h4>
+                    <p>Upload a photo. Our system automatically detects license plates and violation types.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="icon-circle icon-purple"><i class="bi bi-shield-check"></i></div>
+                    <h4>Secure Data</h4>
+                    <p>All reports are encrypted and stored with blockchain verification for total transparency.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="icon-circle icon-cyan"><i class="bi bi-wallet2"></i></div>
+                    <h4>Instant Rewards</h4>
+                    <p>Earn credits for every verified report. Redeem them for civic benefits.</p>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-
-<div class="text-center py-5">
-    <h3>Ready to make a difference?</h3>
-    {% if not user.is_authenticated %}
-    <a href="{% url 'citizen_signup' %}" class="btn btn-success btn-lg mt-3">Join Us Today</a>
-    {% endif %}
 </div>
 
 {% endblock %}

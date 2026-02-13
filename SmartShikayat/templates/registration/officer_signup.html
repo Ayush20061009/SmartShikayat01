@@ -1,20 +1,102 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h4 class="mb-0">Officer Registration</h4>
+<div class="row justify-content-center py-5">
+    <div class="col-lg-6 col-md-8">
+        
+        <div class="glass-card p-4 p-md-5 animate-fade-up border-top-accent">
+            
+            <div class="text-center mb-5">
+                <div class="icon-circle icon-cyan mx-auto mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-shield-lock-fill fs-3"></i>
+                </div>
+                <h2 class="fw-bold font-monospace">OFFICIAL_REGISTRATION</h2>
+                <p class="text-secondary">Restricted Access. Authorized Personnel Only.</p>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-success w-100">Sign Up</button>
-                </form>
+
+            <form method="post" id="signupForm">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger-glow mb-4">
+                    {% for error in form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-12">
+                        <label class="form-label-tech">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text text-muted small mt-1">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="alert alert-info-glow mt-4 d-flex align-items-start gap-3">
+                    <i class="bi bi-info-circle-fill mt-1"></i>
+                    <div class="small">
+                        By registering, you agree to the Official Secrets Act and the platform's data handling protocols.
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary-glow btn-lg" id="submitBtn">
+                        <i class="bi bi-person-badge-fill me-2"></i> REGISTER AS OFFICER
+                    </button>
+                </div>
+            </form>
+
+            <div class="text-center mt-4 pt-3 border-top border-secondary-subtle">
+                <p class="small text-muted mb-0">Already have credentials?</p>
+                <a href="{% url 'login' %}" class="text-decoration-none fw-bold text-accent">Access Terminal Login</a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .border-top-accent {
+        border-top: 4px solid var(--primary-color) !important;
+    }
+    
+    .alert-info-glow {
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        color: var(--text-primary);
+        border-radius: 8px;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], select {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 8px;
+        margin-bottom: 5px;
+    }
+    
+    input:focus, select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+</style>
+
+<script>
+    document.getElementById('signupForm').addEventListener('submit', function() {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+    });
+</script>
 {% endblock %}

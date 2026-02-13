@@ -1,20 +1,75 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Home | CivicReport{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <h1>Report City Issues, <span>Get Quick Action</span></h1>
-        <p>
-            Report broken roads, garbage, water shortages,
-            illegal parking and fire hazards.
+<div class="position-relative overflow-hidden d-flex align-items-center justify-content-center" style="min-height: 85vh;">
+    
+    <div class="position-absolute top-50 start-50 translate-middle" style="width: 600px; height: 600px; background: var(--accent-glow); filter: blur(100px); opacity: 0.5; border-radius: 50%; z-index: -1;"></div>
+
+    <div class="container text-center position-relative z-1">
+        
+        <div class="animate-fade-up">
+            <div class="badge-pill mb-4 d-inline-flex align-items-center">
+                <span class="badge-dot me-2"></span> CIVIC RESOLUTION PROTOCOL
+            </div>
+        </div>
+
+        <h1 class="display-2 fw-bold mb-4 animate-fade-up" style="animation-delay: 100ms;">
+            Report City Issues, <br>
+            <span class="text-gradient">Get Quick Action.</span>
+        </h1>
+
+        <p class="lead text-secondary mb-5 mx-auto animate-fade-up" style="max-width: 600px; animation-delay: 200ms;">
+            The advanced platform for civic intelligence. Report broken roads, garbage, water shortages, illegal parking, and fire hazards instantly.
         </p>
 
-        <div class="hero-buttons">
-            <a href="{% url 'report_form' %}" class="btn-orange">Report Issue</a>
-            <a href="{% url 'reports' %}" class="btn-outline">Track Complaints</a>
+        <div class="d-flex flex-wrap justify-content-center gap-3 animate-fade-up" style="animation-delay: 300ms;">
+            <a href="{% url 'complaint_create' %}" class="btn btn-primary-glow btn-lg px-5">
+                <i class="bi bi-megaphone-fill me-2"></i> Report Issue
+            </a>
+            <a href="{% url 'complaint_list' %}" class="btn btn-outline-glow btn-lg px-5">
+                <i class="bi bi-activity me-2"></i> Track Complaints
+            </a>
         </div>
+
+        <div class="row mt-5 g-4 justify-content-center animate-fade-up" style="animation-delay: 400ms;">
+            <div class="col-auto">
+                <div class="glass-card px-4 py-2 d-flex align-items-center gap-2 small text-secondary">
+                    <i class="bi bi-shield-check text-success"></i> Secure
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="glass-card px-4 py-2 d-flex align-items-center gap-2 small text-secondary">
+                    <i class="bi bi-lightning-charge text-warning"></i> Fast
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="glass-card px-4 py-2 d-flex align-items-center gap-2 small text-secondary">
+                    <i class="bi bi-geo-alt text-info"></i> Geo-Tagged
+                </div>
+            </div>
+        </div>
+
     </div>
-</section>
+</div>
+
+<style>
+    /* Gradient Text */
+    .text-gradient {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Responsive Font Sizes */
+    @media (max-width: 768px) {
+        .display-2 {
+            font-size: 2.5rem;
+        }
+    }
+</style>
 {% endblock %}

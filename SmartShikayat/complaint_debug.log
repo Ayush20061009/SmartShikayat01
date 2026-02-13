@@ -151,3 +151,46 @@ The image clearly shows a large pothole on the road, which is a depression in th
 2026-02-12 23:44:44,300 - Owner Found: Tirth_new_user (tirth78744@gmail.com)
 2026-02-12 23:44:44,327 - Calling send_fine_email...
 2026-02-12 23:44:49,482 - Email Result: True - Email sent to tirth78744@gmail.com
+2026-02-13 05:43:10,972 - Complaint Create POST received
+2026-02-13 05:43:12,718 - Form Validation Failed: <ul class="errorlist"><li>location<ul class="errorlist" id="id_location_error"><li>This field is required.</li></ul></li></ul>
+2026-02-13 05:55:42,858 - Complaint Create POST received
+2026-02-13 05:55:43,825 - Form is Valid. Processing...
+2026-02-13 05:55:43,826 - Complaint Category: 'parking', Image Details: test0.jpg
+2026-02-13 05:55:43,826 - Starting AI Logic...
+2026-02-13 05:55:43,826 - Manual Plate Input: 
+2026-02-13 05:55:45,971 - AI Generated Check: False (NO.)
+2026-02-13 05:55:48,017 - Illegal Parking Check: False (NO 
+Reason: Not enough information.)
+2026-02-13 05:55:48,017 - AI: Might not be illegal parking: NO 
+Reason: Not enough information.
+2026-02-13 05:55:50,196 - Extracted Plate: KL21S8086
+2026-02-13 05:55:50,197 - Using AI Plate: KL21S8086
+2026-02-13 05:55:50,197 - Final Plate for Fine: KL21S8086
+2026-02-13 05:55:50,199 - Owner Found: Ayush_K (ayushhkadiya@gmail.com)
+2026-02-13 05:55:50,622 - Calling send_fine_email...
+2026-02-13 05:55:57,675 - Email Result: True - Email sent to ayushhkadiya@gmail.com
+2026-02-13 06:17:06,447 - Complaint Create POST received
+2026-02-13 06:17:06,450 - Form is Valid. Processing...
+2026-02-13 06:17:06,450 - Complaint Category: 'road', Image Details: test0.jpg
+2026-02-13 06:17:06,450 - Starting Road Damage AI Validation...
+2026-02-13 06:17:08,630 - AI Generated Check: False (NO.)
+2026-02-13 06:17:10,678 - Road Damage Validation: False (NO. 
+
+The image does not show any road damage, as it only displays the front of a car parked in a driveway or parking area, with no visible road surface.)
+2026-02-13 06:17:10,678 - Image doesn't show road damage: NO. 
+
+The image does not show any road damage, as it only displays the front of a car parked in a driveway or parking area, with no visible road surface.
+2026-02-13 06:17:42,819 - Complaint Create POST received
+2026-02-13 06:17:42,821 - Form is Valid. Processing...
+2026-02-13 06:17:42,822 - Complaint Category: 'road', Image Details: WhatsApp Image 2026-02-12 at 23.56.09 (1).jpeg
+2026-02-13 06:17:42,822 - Starting Road Damage AI Validation...
+2026-02-13 06:17:44,312 - AI Generated Check: False (NO.)
+2026-02-13 06:17:45,903 - Road Damage Validation: False (NO. 
+
+The image shows a close-up of a car license plate and does not depict any road conditions.)
+2026-02-13 06:17:45,903 - Image doesn't show road damage: NO. 
+
+The image shows a close-up of a car license plate and does not depict any road conditions.
+2026-02-13 06:18:19,657 - Complaint Create POST received
+2026-02-13 06:18:19,660 - Form is Valid. Processing...
+2026-02-13 06:18:19,661 - Complaint Category: 'water', Image Details: QR.jpeg

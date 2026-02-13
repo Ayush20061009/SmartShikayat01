@@ -1,50 +1,109 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2>Department Dashboard: {{ user.department|title }}</h2>
-        <p class="text-muted">Overview of all complaints assigned to your department.</p>
-    </div>
-</div>
+{% load static %}
 
-<div class="card">
-    <div class="card-body">
+{% block content %}
+<div class="container-fluid px-4 py-4"> <div class="d-flex justify-content-between align-items-end mb-4 animate-fade-up">
+        <div>
+            <div class="badge-pill mb-2">
+                <span class="badge-dot"></span> OFFICER CONSOLE
+            </div>
+            <h2 class="display-6 fw-bold">
+                Department: <span class="text-gradient">{{ user.department|default:"General"|title }}</span>
+            </h2>
+            <p class="text-secondary mb-0">Manage and resolve assigned civic grievances.</p>
+        </div>
+        
+        <div class="d-none d-md-block text-end">
+            <h4 class="fw-bold mb-0 font-monospace">{{ complaints.count }}</h4>
+            <span class="text-secondary small text-uppercase">Active Cases</span>
+        </div>
+    </div>
+
+    <div class="glass-card p-0 overflow-hidden animate-fade-up" style="animation-delay: 100ms;">
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
+            <table class="table table-hover align-middle mb-0" style="background: transparent;">
+                
+                <thead class="bg-primary-subtle text-primary border-bottom border-primary-subtle">
                     <tr>
-                        <th>Tracking ID</th>
-                        <th>Category</th>
-                        <th>Location</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th class="py-3 ps-4 text-uppercase small fw-bold font-monospace">Tracking ID</th>
+                        <th class="py-3 text-uppercase small fw-bold font-monospace">Category</th>
+                        <th class="py-3 text-uppercase small fw-bold font-monospace">Location</th>
+                        <th class="py-3 text-uppercase small fw-bold font-monospace">Description</th>
+                        <th class="py-3 text-uppercase small fw-bold font-monospace">Date Filed</th>
+                        <th class="py-3 text-uppercase small fw-bold font-monospace">Status</th>
+                        <th class="py-3 pe-4 text-end text-uppercase small fw-bold font-monospace">Action</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {% for complaint in complaints %}
-                    <tr>
-                        <td>{{ complaint.tracking_id|truncatechars:10 }}</td>
-                        <td>{{ complaint.get_category_display }}</td>
-                        <td>{{ complaint.location }}</td>
-                        <td>{{ complaint.description|truncatewords:10 }}</td>
-                        <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                    <tr class="transition-hover border-bottom border-secondary-subtle">
+                        
+                        <td class="ps-4">
+                            <span class="fw-bold font-monospace text-accent">#{{ complaint.tracking_id|truncatechars:10 }}</span>
+                        </td>
+                        
                         <td>
-                            <span class="badge 
-                                {% if complaint.status == 'pending' %}bg-warning
-                                {% elif complaint.status == 'progress' %}bg-info
-                                {% else %}bg-success{% endif %}">
-                                {{ complaint.get_status_display }}
+                            <div class="d-flex align-items-center">
+                                <span class="icon-box-xs me-2">
+                                    <i class="bi bi-grid-fill"></i>
+                                </span>
+                                {{ complaint.get_category_display }}
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-center text-truncate" style="max-width: 180px;" title="{{ complaint.location }}">
+                                <i class="bi bi-geo-alt me-2 text-secondary"></i>
+                                <span>{{ complaint.location }}</span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="text-secondary text-truncate d-block" style="max-width: 250px;">
+                                {{ complaint.description|truncatewords:8 }}
                             </span>
                         </td>
+
+                        <td class="font-monospace small text-secondary">
+                            {{ complaint.created_at|date:"M d, Y" }}
+                        </td>
+
                         <td>
-                            <a href="{% url 'complaint_update_status' complaint.tracking_id %}" class="btn btn-sm btn-primary">Update</a>
+                            {% if complaint.status == 'pending' or complaint.status == 'Pending' %}
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">
+                                    <i class="bi bi-clock me-1"></i> Pending
+                                </span>
+                            {% elif complaint.status == 'progress' or complaint.status == 'In Progress' %}
+                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">
+                                    <i class="bi bi-gear-wide-connected me-1"></i> Processing
+                                </span>
+                            {% elif complaint.status == 'resolved' or complaint.status == 'Resolved' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                                    <i class="bi bi-check-circle me-1"></i> Resolved
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3">
+                                    {{ complaint.get_status_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="pe-4 text-end">
+                            <a href="{% url 'complaint_update_status' complaint.tracking_id %}" class="btn btn-sm btn-outline-glow text-uppercase fw-bold" style="font-size: 0.75rem;">
+                                Update <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center">No complaints found for this department.</td>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="opacity-50 mb-3">
+                                <i class="bi bi-inbox-fill display-4 text-secondary"></i>
+                            </div>
+                            <h5 class="text-muted fw-bold">System Clear</h5>
+                            <p class="small text-secondary">No active complaints found for this department.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -52,4 +111,44 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Table Overrides */
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-primary);
+        --bs-table-hover-bg: rgba(56, 189, 248, 0.03); /* Subtle Cyan Hover */
+        --bs-table-border-color: var(--border-color);
+    }
+    
+    .text-gradient {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .bg-primary-subtle {
+        background-color: rgba(56, 189, 248, 0.08) !important;
+    }
+
+    .icon-box-xs {
+        width: 24px; height: 24px;
+        background: var(--bg-body);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+    }
+
+    .text-accent { color: var(--accent-color); }
+    
+    /* Glowing Badges */
+    .bg-warning-subtle { background: rgba(234, 179, 8, 0.1) !important; color: #fbbf24 !important; border-color: rgba(234, 179, 8, 0.2) !important; }
+    .bg-info-subtle { background: rgba(56, 189, 248, 0.1) !important; color: #38bdf8 !important; border-color: rgba(56, 189, 248, 0.2) !important; }
+    .bg-success-subtle { background: rgba(34, 197, 94, 0.1) !important; color: #4ade80 !important; border-color: rgba(34, 197, 94, 0.2) !important; }
+    .bg-secondary-subtle { background: rgba(148, 163, 184, 0.1) !important; color: #94a3b8 !important; border-color: rgba(148, 163, 184, 0.2) !important; }
+</style>
 {% endblock %}
